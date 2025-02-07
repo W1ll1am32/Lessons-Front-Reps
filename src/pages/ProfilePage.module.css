@@ -1,0 +1,22 @@
+.profileContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+.profileContainer img {
+    border-radius: 50%;
+    margin-bottom: 10px;
+}
+
+.profileContainer p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+button {
+    margin-top: 10px;
+}
