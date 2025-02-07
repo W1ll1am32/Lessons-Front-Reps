@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "homepage": "https://github.com/randnull/Lessons-Front-Portal",
+  "homepage": "https://github.com/randnull/Lessons-Front-Reps",
   "scripts": {
     "deploy": "gh-pages -d dist",
     "dev": "vite",
