@@ -6,6 +6,8 @@ import {useNavigate} from "react-router-dom";
 import {Order} from "@/models/Order.ts";
 import {getOrders} from "@/api/Orders.ts";
 import {initData, useSignal} from "@telegram-apps/sdk-react";
+import {Icon28Archive} from "@telegram-apps/telegram-ui/dist/icons/28/archive";
+import {Icon32ProfileColoredSquare} from "@telegram-apps/telegram-ui/dist/icons/32/profile_colored_square";
 
 
 export const MyOrdersPage: FC = () => {
@@ -16,13 +18,19 @@ export const MyOrdersPage: FC = () => {
     const [currentTabId, setCurrentTab] = useState<string>("orders");
 
     const initDataRaw = useSignal<string | undefined>(initData.raw);
-    
+
     const tabs = [
-    	{
-      		id: "profile",
-      		text: "Profile",
-    	},
-  	];
+        {
+            id: "orders",
+            text: "Orders",
+            Icon: Icon28Archive,
+        },
+        {
+            id: "profile",
+            text: "Profile",
+            Icon: Icon32ProfileColoredSquare,
+        },
+    ];
 
 
     useEffect(() => {
@@ -89,7 +97,7 @@ export const MyOrdersPage: FC = () => {
             )}
 
             <Tabbar>
-                {tabs.map(({ id, text }) => (
+                {tabs.map(({ id, text, Icon }) => (
                     <Tabbar.Item
                         key={id}
                         text={text}
@@ -100,7 +108,9 @@ export const MyOrdersPage: FC = () => {
                                 navigate("/profile");
                             }
                         }}
-                    />
+                    >
+                        <Icon />
+                    </Tabbar.Item>
                 ))}
             </Tabbar>
         </Page>
