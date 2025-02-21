@@ -17,6 +17,14 @@
     margin-bottom: 15px;
 }
 
+.profileDescription {
+    background-color: var(--tgui--card_bg_color);
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
 button {
     margin-top: 10px;
 }
