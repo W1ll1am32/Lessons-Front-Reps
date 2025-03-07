@@ -1,6 +1,28 @@
-import {Order} from "@/models/Order.ts";
+import {Order, OrderDetails} from "@/models/Order.ts";
 
 const api_link: string = 'https://lessonsmy.tech/api';
+
+export const sendData = async (userdata: string): Promise<string | null> => {
+    try {
+        const ResponseData = await fetch(`${api_link}/users`, {
+            method: "POST",
+            headers: {"token": userdata},
+        });
+
+        console.log("Response status:", ResponseData.status);
+        console.log("Response headers:", ResponseData.headers);
+
+        if (!ResponseData.ok) {
+            const errorText = await ResponseData.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+        const result = await ResponseData.json();
+        return result.text;
+    } catch (error) {
+        console.error(error);
+        return null
+    }
+}
 
 export const getOrders = async (userdata: string): Promise<Order[]> => {
     try {
@@ -48,20 +70,26 @@ export const getOrdersMock = async (userdata: string): Promise<Order[]> => {
     }
 }
 */
-export const getOrderById = async (id: string, userdata: string): Promise<Order | null> => {
+export const getOrderById = async (id: string, userdata: string): Promise<OrderDetails | null> => {
     try {
-        const ResponseOrder = await fetch(`${api_link}/orders/${id}`, {
+        const ResponseOrder = await fetch(`${api_link}/orders/id/${id}`, {
             method: "GET",
             headers: {"token": userdata },
         });
 
         console.log("Response status:", ResponseOrder.status);
         console.log("Response headers:", ResponseOrder.headers);
+        console.log("Response body:", ResponseOrder.body);
 
         if (!ResponseOrder.ok) {
             throw new Error('Не удалось получить заказ');
         }
-        return ResponseOrder.json();
+
+        const data = await ResponseOrder.json();
+
+        console.log("Response data:", data);
+
+        return data || [];
     } catch (err) {
         return null;
     }

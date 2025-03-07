@@ -2,7 +2,7 @@ import {FC, useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 import { Page } from '@/components/Page';
 import {Headline, Spinner} from '@telegram-apps/telegram-ui';
-import {Order} from "@/models/Order.ts";
+import {OrderDetails} from "@/models/Order.ts";
 import {getOrderById, responseOrder} from "@/api/Orders.ts";
 import {useNavigate} from "react-router-dom";
 import {initData, mainButton, useSignal} from "@telegram-apps/sdk-react";
@@ -13,7 +13,7 @@ import styles from "./MyOrdersDetails.module.css"
 export const OrderDetailsPage: FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const [order, setOrder] = useState<Order | null>(null);
+    const [order, setOrder] = useState<OrderDetails | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const initDataRaw = useSignal<string | undefined>(initData.raw);
@@ -28,6 +28,7 @@ export const OrderDetailsPage: FC = () => {
                         return
                     }
                     const OrderData = await getOrderById(id, initDataRaw);
+                    console.log("data", OrderData);
                     setOrder(OrderData);
                 } catch (err) {
                     setError('Не удалось получить заказ');
@@ -37,7 +38,7 @@ export const OrderDetailsPage: FC = () => {
             }
         }
         currentOrder();
-    }, [id]);
+    }, [id, initDataRaw]);
     
     useEffect(() => {
         if (!mainButton.isMounted()) {
