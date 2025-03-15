@@ -1,18 +1,35 @@
-import axios from 'axios';
-
-const API_BASE = 'https://laij38-109-252-122-97.ru.tuna.am';
+const API_BASE = 'https://lessonsmy.tech';
 
 export const ValidateInitData = async (initData: string): Promise<boolean> => {
     try {
-        const response = await axios.post(`${API_BASE}/auth/init-data`, { initData });
-        return response.status === 200;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.error("Axios error:", error.response?.data || error.message);
-            return false;
-        } else {
-            console.error("Unexpected error:", error);
-            return false;
+        console.log('initData', initData);
+        const response = await fetch(`${API_BASE}/auth/init-data`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                initData: initData,
+                role: "Tutor"
+            })
+        });
+
+        if (response.status === 200) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            return true
         }
+
+        return false;
+    } catch (error) {
+        console.error(error);
+        return false; //
+        // if (axios.isAxiosError(error)) {
+        //     console.error("Axios error:", error.response?.data || error.message);
+        //     return false;
+        // } else {
+        //     console.error("Unexpected error:", error);
+        //     return false;
+        // }
     }
 };

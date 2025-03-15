@@ -4,9 +4,13 @@ const api_link: string = 'https://lessonsmy.tech/api';
 
 export const sendData = async (userdata: string): Promise<string | null> => {
     try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
         const ResponseData = await fetch(`${api_link}/users`, {
             method: "POST",
-            headers: {"token": userdata},
+            headers: {"Authorization": AuthToken },
         });
 
         console.log("Response status:", ResponseData.status);
@@ -26,9 +30,13 @@ export const sendData = async (userdata: string): Promise<string | null> => {
 
 export const getOrders = async (userdata: string): Promise<Order[]> => {
     try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return [] // navigate auth page
+        }
         const ResponseOrders = await fetch(`${api_link}/orders/all`, {
             method: "GET",
-            headers: {"token": userdata},
+            headers: {"Authorization": AuthToken },
         });
 
         console.log("Response status:", ResponseOrders.status);
@@ -72,9 +80,13 @@ export const getOrdersMock = async (userdata: string): Promise<Order[]> => {
 */
 export const getOrderById = async (id: string, userdata: string): Promise<OrderDetails | null> => {
     try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
         const ResponseOrder = await fetch(`${api_link}/orders/id/${id}`, {
             method: "GET",
-            headers: {"token": userdata },
+            headers: {"Authorization": AuthToken },
         });
 
         console.log("Response status:", ResponseOrder.status);
@@ -175,10 +187,14 @@ export const updateOrder = async (id: string, userdata: string, orderdata: Order
 */
 export const responseOrder = async (id: string, userdata: string): Promise<string | null> => {
     try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
             body: JSON.stringify({"order_id": id}),
-            headers: {"token": userdata},
+            headers: {"Authorization": AuthToken },
         })
 
         if (!responseOrder.ok) {
