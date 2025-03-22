@@ -193,7 +193,7 @@ export const responseOrder = async (id: string, userdata: string): Promise<strin
         }
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
-            body: JSON.stringify({"order_id": id}),
+            body: JSON.stringify({"greetings": "Здравствйте! Давно занимаюсь этой темой и могу помочь"}),
             headers: {"Authorization": AuthToken },
         })
 
