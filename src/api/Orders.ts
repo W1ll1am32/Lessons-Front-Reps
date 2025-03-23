@@ -191,16 +191,20 @@ export const responseOrder = async (id: string, userdata: string): Promise<strin
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
+
+        console.error(`${api_link}/responses/id/${id}`)
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
-            body: JSON.stringify({"greetings": "Здравствйте! Давно занимаюсь этой темой и могу помочь"}),
-            headers: {"Authorization": AuthToken },
+            body: JSON.stringify({
+                "greetings": "Здравствйте! Давно занимаюсь этой темой и могу помочь"
+            }),
+            headers: {"Authorization": AuthToken, "Content-Type": "application/json"},
         })
 
         if (!responseOrder.ok) {
+            console.error(responseOrder.status);
             throw new Error("Ошибка при отклике");
         }
-
         const result = await responseOrder.json();
         return result.text;
     } catch (err) {
