@@ -84,7 +84,7 @@ export const getOrderById = async (id: string, userdata: string): Promise<OrderD
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
-        const ResponseOrder = await fetch(`${api_link}/orders/id/${id}`, {
+        const ResponseOrder = await fetch(`${api_link}/orders/mini/id/${id}`, {
             method: "GET",
             headers: {"Authorization": AuthToken },
         });
@@ -206,7 +206,28 @@ export const responseOrder = async (id: string, userdata: string): Promise<strin
             throw new Error("Ошибка при отклике");
         }
         const result = await responseOrder.json();
-        return result.text;
+        console.log("Response order result:", result);
+        console.log("Response order text:", result.response_id);
+
+        const editOrder = {
+            is_responded: true,
+        }
+
+        const responseEditOrder = await fetch(`${api_link}/orders/id/${id}`, {
+            method: "PUT",
+            body: JSON.stringify(editOrder),
+            headers: {"content-type": 'application/json', "Authorization": AuthToken },
+        })
+
+        console.log("Response status:", responseEditOrder.status);
+        console.log("Response headers:", responseEditOrder.headers);
+
+        if (!responseEditOrder.ok) {
+            console.error(responseOrder.status);
+            throw new Error("Ошибка при отклике");
+        }
+
+        return result.response_id;
     } catch (err) {
         console.error(err);
         return null;

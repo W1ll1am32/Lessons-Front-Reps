@@ -3,19 +3,19 @@ import { Page } from '@/components/Page';
 import {Badge, Cell, Headline, Placeholder, Tabbar} from '@telegram-apps/telegram-ui';
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
-import {Order} from "@/models/Order.ts";
-import {getOrders} from "@/api/Orders.ts";
+import {Order, OrderDetails} from "@/models/Order.ts";
+import {getOrders, getOrderById} from "@/api/Orders.ts";
 import {initData, useSignal} from "@telegram-apps/sdk-react";
 import {Icon28Archive} from "@telegram-apps/telegram-ui/dist/icons/28/archive";
 import {Icon32ProfileColoredSquare} from "@telegram-apps/telegram-ui/dist/icons/32/profile_colored_square";
 
 
-export const MyOrdersPage: FC = () => {
+export const ResponsesPage: FC = () => {
     const navigate = useNavigate();
     const [IsLoading, SetIsLoading] = useState<boolean>(true);
     const [Error, SetError] = useState<string | null>(null);
     const [LoadOrder, SetNeworders] = useState<Order[]>([]);
-    const [currentTabId, setCurrentTab] = useState<string>("orders");
+    const [currentTabId, setCurrentTab] = useState<string>("responses");
 
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 
@@ -46,8 +46,16 @@ export const MyOrdersPage: FC = () => {
                     return
                 }
                 const data = await getOrders(initDataRaw);
+                const responded: OrderDetails[] = [];
+                for (const order of data) {
+                    const detailed = await getOrderById(order.id, initDataRaw);
+                    if (detailed && detailed.is_responsed) {
+                        responded.push(detailed);
+                    }
+                }
+                console.log("Сохраняем отклики в состояние MyResponses:", responded);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
-                SetNeworders(data);
+                SetNeworders(responded);
             } catch (err) {
                 console.log(err);
                 SetError("Не получили заказы");
@@ -66,7 +74,7 @@ export const MyOrdersPage: FC = () => {
     return (
         <Page back={false}>
             <div className={styles.Title}>
-                <Headline weight="1"> Доступные заказы </Headline>
+                <Headline weight="1"> Откликнутые заказы </Headline>
             </div>
             { IsLoading? (
                 <div>Загружаем заказы...</div>
@@ -109,10 +117,10 @@ export const MyOrdersPage: FC = () => {
                         selected={id === currentTabId}
                         onClick={() => {
                             setCurrentTab(id);
-                            if (id === "profile") {
+                            if (id === "orders") {
+                                navigate("/orders");
+                            } else if (id === "profile") {
                                 navigate("/profile");
-                            } else if (id === "responses") {
-                                navigate("/responses");
                             }
                         }}
                     >

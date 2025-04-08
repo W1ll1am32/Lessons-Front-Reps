@@ -1,0 +1,43 @@
+.list {
+    width: 400px;
+    max-width: 100%;
+    margin: auto;
+    background: var(--tgui--secondary_bg_color);
+}
+
+.Title {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    top: 10px;
+    left: 20px;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: flex-end;
+    position: relative;
+    top: -10px;
+    left: -20px;
+    margin-top: 20px;
+}
+
+.noOrders {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 16px;
+    color: var(--tgui--bg_color);
+}
+
+.noOrders img {
+    width: 150px; /* Установить ширину изображения */
+    height: auto; /* Автоматически подстраивать высоту */
+}
+
+.orderList {
+    margin-top: 20px;
+}
+
+.orderItem {
+    margin-bottom: 10px;
+}

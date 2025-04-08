@@ -46,11 +46,18 @@ export const OrderDetailsPage: FC = () => {
         }
         if (mainButton.setParams.isAvailable()) {
             mainButton.setParams({
-                text: 'Response',
+                text: 'Ответить',
                 // убрать в отдельную проверку!
                 // нужен ли ref?
                 isEnabled: true,//titleRef.current.trim() !== '' && descriptionRef.current.trim() !== '' && tagsRef.current.length > 0, // прикол
                 isVisible: true
+            });
+        }
+        if (!order || order.is_responsed) {
+            console.log("Main Button: order - ", order);
+            mainButton.setParams({
+                isVisible: false,
+                isEnabled: false,
             });
         }
 
@@ -90,7 +97,7 @@ export const OrderDetailsPage: FC = () => {
                 console.log("удаляем...");
                 mainButton.unmount();
             }
-    }, []);
+    }, [order]);
 
     return (
         <Page back={true}>

@@ -27,12 +27,17 @@ export const ProfilePage: FC = () => {
     const tabs = [
         {
             id: "orders",
-            text: "Orders",
+            text: "Заказы",
             Icon: Icon28Archive,
         },
         {
             id: "profile",
-            text: "Profile",
+            text: "Профиль",
+            Icon: Icon32ProfileColoredSquare,
+        },
+        {
+            id: "responses",
+            text: "Отклики",
             Icon: Icon32ProfileColoredSquare,
         },
     ];
@@ -76,6 +81,8 @@ export const ProfilePage: FC = () => {
                             setCurrentTab(id);
                             if (id === "orders") {
                                 navigate("/orders");
+                            } else if (id === "responses") {
+                                navigate("/responses");
                             }
                         }}
                     >
