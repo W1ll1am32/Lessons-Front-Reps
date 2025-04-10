@@ -1,4 +1,4 @@
-import {Order, OrderDetails} from "@/models/Order.ts";
+import {OrderPagination, OrderDetails} from "@/models/Order.ts";
 
 const api_link: string = 'https://lessonsmy.tech/api';
 
@@ -28,13 +28,13 @@ export const sendData = async (userdata: string): Promise<string | null> => {
     }
 }
 
-export const getOrders = async (userdata: string): Promise<Order[]> => {
+export const getOrders = async (userdata: string, limit: number, page: number): Promise<OrderPagination | null> => {
     try {
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
-            return [] // navigate auth page
+            return null // navigate auth page
         }
-        const ResponseOrders = await fetch(`${api_link}/orders/all`, {
+        const ResponseOrders = await fetch(`${api_link}/orders/pagination/size=${limit}&page=${page}`, {
             method: "GET",
             headers: {"Authorization": AuthToken },
         });
@@ -49,10 +49,16 @@ export const getOrders = async (userdata: string): Promise<Order[]> => {
         const data = await ResponseOrders.json();
         console.log("Сохраняем заказы в состояние:", data);
         console.warn(data)
-        return data || [];
+
+        const ordersData: OrderPagination = {
+            orders: data.Orders || [],
+            pages: data.Pages || 0,
+        }
+
+        return ordersData;
     } catch (error) {
         console.error(error);
-        return []
+        return null
     }
 }
 /*
@@ -185,7 +191,7 @@ export const updateOrder = async (id: string, userdata: string, orderdata: Order
     }
 }
 */
-export const responseOrder = async (id: string, userdata: string): Promise<string | null> => {
+export const responseOrder = async (id: string, userdata: string, responseText: string): Promise<string | null> => {
     try {
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
@@ -196,7 +202,7 @@ export const responseOrder = async (id: string, userdata: string): Promise<strin
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
             body: JSON.stringify({
-                "greetings": "Здравствйте! Давно занимаюсь этой темой и могу помочь"
+                "greetings": responseText
             }),
             headers: {"Authorization": AuthToken, "Content-Type": "application/json"},
         })

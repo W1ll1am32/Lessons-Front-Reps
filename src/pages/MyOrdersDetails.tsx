@@ -1,7 +1,7 @@
 import {FC, useEffect, useState} from 'react';
 import { useParams } from 'react-router-dom';
 import { Page } from '@/components/Page';
-import {Headline, Spinner} from '@telegram-apps/telegram-ui';
+import {Button, Headline, Input, Spinner} from '@telegram-apps/telegram-ui';
 import {OrderDetails} from "@/models/Order.ts";
 import {getOrderById, responseOrder} from "@/api/Orders.ts";
 import {useNavigate} from "react-router-dom";
@@ -16,6 +16,8 @@ export const OrderDetailsPage: FC = () => {
     const [order, setOrder] = useState<OrderDetails | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showResponseForm, setShowResponseForm] = useState(false);
+    const [responseText, setResponseText] = useState('Здравствуйте! Давно занимаюсь этой темой и могу помочь');
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 // Сработало 4.01 в 01:41 без передачи здесь initDataRaw - при этом на бэк он пришел правильный. почему?
 
@@ -50,42 +52,15 @@ export const OrderDetailsPage: FC = () => {
                 // убрать в отдельную проверку!
                 // нужен ли ref?
                 isEnabled: true,//titleRef.current.trim() !== '' && descriptionRef.current.trim() !== '' && tagsRef.current.length > 0, // прикол
-                isVisible: true
-            });
-        }
-        if (!order || order.is_responsed) {
-            console.log("Main Button: order - ", order);
-            mainButton.setParams({
-                isVisible: false,
-                isEnabled: false,
+                isVisible: !order?.is_responsed
             });
         }
 
         const offClick = mainButton.onClick(async () => {
-
+            setShowResponseForm(true);
             mainButton.setParams({
-                isLoaderVisible: true,
-                isEnabled: false
+                isVisible: false
             });
-
-            try {
-                if (id && initDataRaw) {
-                    const text = await responseOrder(id, initDataRaw);
-                    alert('Отклик на заказ: ' + text);
-                    navigate(`/orders`);
-                }
-            } catch (error) {
-                alert('Ошибка отклика на заказ');
-            } finally {
-                mainButton.setParams({ isLoaderVisible: false, isEnabled: true });
-            }
-
-            mainButton.setParams({
-                isLoaderVisible: false,
-                isEnabled: true
-            });
-
-            navigate(`/orders`);
         });
 
         return () => {
@@ -98,6 +73,29 @@ export const OrderDetailsPage: FC = () => {
                 mainButton.unmount();
             }
     }, [order]);
+
+    const handleSubmitResponse = async () => {
+        if (!id || !initDataRaw || !responseText.trim()) return;
+
+        try {
+            mainButton.setParams({
+                isLoaderVisible: true,
+                isEnabled: false
+            });
+
+            const text = await responseOrder(id, initDataRaw, responseText);
+            alert('Отклик на заказ: ' + text);
+            setShowResponseForm(false);
+            navigate(`/orders`);
+        } catch (error) {
+            alert('Ошибка отклика на заказ');
+        } finally {
+            mainButton.setParams({
+                isLoaderVisible: false,
+                isEnabled: true
+            });
+        }
+    };
 
     return (
         <Page back={true}>
@@ -120,6 +118,34 @@ export const OrderDetailsPage: FC = () => {
                         <p>Ставка: {order.min_price} - {order.max_price}</p>
                         <p>Описание: {order.description}</p>
                         </div>
+
+                        {showResponseForm && (
+                            <div className={styles.responseForm}>
+                                <Input
+                                    header="Ваш отклик"
+                                    placeholder="Введите текст отклика..."
+                                    value={responseText}
+                                    onChange={(e) => setResponseText(e.target.value)}
+                                />
+                                <Button
+                                    style={{ marginTop: '1rem' }}
+                                    onClick={handleSubmitResponse}
+                                    disabled={!responseText.trim()}
+                                >
+                                    Отправить отклик
+                                </Button>
+                                <Button
+                                    mode="plain"
+                                    style={{ marginTop: '0.5rem' }}
+                                    onClick={() => {
+                                        setShowResponseForm(false);
+                                        mainButton.setParams({ isVisible: true });
+                                    }}
+                                >
+                                    Отмена
+                                </Button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

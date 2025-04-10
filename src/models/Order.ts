@@ -55,3 +55,8 @@ export interface OrderUpdate {
 export interface OrderEdit {
     is_responded: boolean;
 }
+
+export interface OrderPagination {
+    orders: Order[];
+    pages: number;
+}

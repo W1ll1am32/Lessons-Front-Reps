@@ -41,3 +41,15 @@
 .orderItem {
     margin-bottom: 10px;
 }
+
+.pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+}
+
+.pagination span {
+    font-size: 14px;
+    color: var(--tgui--text_color);
+}
