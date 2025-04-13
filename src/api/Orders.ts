@@ -34,7 +34,7 @@ export const getOrders = async (userdata: string, limit: number, page: number): 
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
-        const ResponseOrders = await fetch(`${api_link}/orders/pagination/size=${limit}&page=${page}`, {
+        const ResponseOrders = await fetch(`${api_link}/orders/pagination/?size=${limit}&page=${page}`, {
             method: "GET",
             headers: {"Authorization": AuthToken },
         });
