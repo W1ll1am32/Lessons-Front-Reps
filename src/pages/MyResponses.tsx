@@ -3,8 +3,8 @@ import { Page } from '@/components/Page';
 import {Badge, Cell, Headline, Placeholder, Tabbar} from '@telegram-apps/telegram-ui';
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
-import {Order, OrderDetails} from "@/models/Order.ts";
-import {getOrders, getOrderById} from "@/api/Orders.ts";
+import {Order, OrderDetails} from "@/models/Order.ts"; //OrderPagination
+import {getOrderById} from "@/api/Orders.ts"; // getOrders
 import {initData, useSignal} from "@telegram-apps/sdk-react";
 import {Icon28Archive} from "@telegram-apps/telegram-ui/dist/icons/28/archive";
 import {Icon32ProfileColoredSquare} from "@telegram-apps/telegram-ui/dist/icons/32/profile_colored_square";
@@ -45,7 +45,8 @@ export const ResponsesPage: FC = () => {
                     SetError("Нет токена");
                     return
                 }
-                const data = await getOrders(initDataRaw);
+                const data: any[] = []
+                // const data = await getOrders(initDataRaw);
                 const responded: OrderDetails[] = [];
                 for (const order of data) {
                     const detailed = await getOrderById(order.id, initDataRaw);
