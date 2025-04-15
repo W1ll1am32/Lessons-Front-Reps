@@ -6,8 +6,9 @@ import {useNavigate} from "react-router-dom";
 import {Order} from "@/models/Order.ts";
 import {getOrders} from "@/api/Orders.ts";
 import {initData, useSignal} from "@telegram-apps/sdk-react";
-import {Icon28Archive} from "@telegram-apps/telegram-ui/dist/icons/28/archive";
-import {Icon32ProfileColoredSquare} from "@telegram-apps/telegram-ui/dist/icons/32/profile_colored_square";
+import UserIcon from "@/icons/user.tsx";
+import OrdersIcon from "@/icons/orders.tsx";
+import ResponsesIcon from "@/icons/responses.tsx";
 
 
 export const MyOrdersPage: FC = () => {
@@ -25,17 +26,17 @@ export const MyOrdersPage: FC = () => {
         {
             id: "orders",
             text: "Заказы",
-            Icon: Icon28Archive,
+            Icon: OrdersIcon,
         },
         {
             id: "profile",
             text: "Профиль",
-            Icon: Icon32ProfileColoredSquare,
+            Icon: UserIcon,
         },
         {
             id: "responses",
             text: "Отклики",
-            Icon: Icon32ProfileColoredSquare,
+            Icon: ResponsesIcon,
         },
     ];
 
@@ -47,7 +48,7 @@ export const MyOrdersPage: FC = () => {
                     SetError("Нет токена");
                     return
                 }
-                const data = await getOrders(initDataRaw, 5, page);
+                const data = await getOrders(initDataRaw, 4, page);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
                 if (data == null) {
                     SetNeworders([])

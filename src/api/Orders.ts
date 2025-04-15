@@ -1,4 +1,4 @@
-import {OrderPagination, OrderDetails} from "@/models/Order.ts";
+import {OrderPagination, OrderDetails, Responses} from "@/models/Order.ts";
 
 const api_link: string = 'https://lessonsmy.tech/api';
 
@@ -34,7 +34,7 @@ export const getOrders = async (userdata: string, limit: number, page: number): 
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
-        const ResponseOrders = await fetch(`${api_link}/orders/pagination/size=${limit}&page=${page}`, {
+        const ResponseOrders = await fetch(`${api_link}/orders/pagination?size=${limit}&page=${page}`, {
             method: "GET",
             headers: {"Authorization": AuthToken },
         });
@@ -51,8 +51,8 @@ export const getOrders = async (userdata: string, limit: number, page: number): 
         console.warn(data)
 
         const ordersData: OrderPagination = {
-            orders: data.Orders || [],
-            pages: data.Pages || 0,
+            orders: data.Orders,
+            pages: data.Pages,
         }
 
         return ordersData;
@@ -61,29 +61,7 @@ export const getOrders = async (userdata: string, limit: number, page: number): 
         return null
     }
 }
-/*
-export const getOrdersMock = async (userdata: string): Promise<Order[]> => {
-    try {
-        const data = [{
-            id: "1", 
-            student_id: "2", 
-            title: "3", 
-            description: "4", 
-            tags: [], 
-            min_price: 0, 
-            max_price: 1, 
-            status: "5", 
-            created_at: "6",
-            updated_at: "7"}];
-        console.log("Сохраняем заказы в состояние:", data);
-        console.warn(data)
-        return data || [];
-    } catch (error) {
-        console.error(error);
-        return []
-    }
-}
-*/
+
 export const getOrderById = async (id: string, userdata: string): Promise<OrderDetails | null> => {
     try {
         const AuthToken = localStorage.getItem("token");
@@ -112,85 +90,7 @@ export const getOrderById = async (id: string, userdata: string): Promise<OrderD
         return null;
     }
 }
-/*
-export const getOrderByIdMock = async (userdata: string): Promise<Order[]> => {
-    try {
-        const data = {
-            id: "1", 
-            student_id: "2", 
-            title: "3", 
-            description: "4", 
-            tags: [], 
-            min_price: 0, 
-            max_price: 1, 
-            status: "5", 
-            created_at: "6",
-            updated_at: "7"};
-        console.log("Сохраняем заказы в состояние:", data);
-        console.warn(data)
-        return data;
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
-}
-*/
-/*
-export const createOrder = async (orderdata: OrderCreate, userdata: string): Promise<string | null> => {
-    try {
-        const responseOrder = await fetch(`${api_link}/orders`, {
-            method: 'POST',
-            body: JSON.stringify(orderdata),
-            headers: {"content-type": 'application/json', "token": userdata},
-        })
 
-        if (!responseOrder.ok) {
-            throw new Error("Ошибка при создании заказа");
-        }
-
-        const result = await responseOrder.json();
-        return result.orderID;
-    } catch (err) {
-        console.error(err);
-        return null;
-    }
-}
-
-export const deleteOrder = async (id: string, userdata: string): Promise<void> => {
-    try {
-        const responseOrder = await fetch(`${api_link}/orders/${id}`, {
-            method: "DELETE",
-            headers: {"token": userdata },
-        })
-
-        if (!responseOrder.ok) {
-            const error = await responseOrder.json();
-            throw new Error("Ошибка при удалении заказа:" + error.error);
-        }
-    } catch (error) {
-        // throw new Error("Ошибка при удалении заказа:")
-        console.error(error);
-    }
-}
-
-export const updateOrder = async (id: string, userdata: string, orderdata: OrderCreate): Promise<void> => {
-    try {
-        const responseOrder = await fetch(`${api_link}/orders/${id}`, {
-            method: "PUT",
-            body: JSON.stringify(orderdata),
-            headers: {"token": userdata },
-        })
-
-        if (!responseOrder.ok) {
-            const error = await responseOrder.json();
-            throw new Error("Ошибка при обновлении заказа" + error.error);
-        }
-    } catch (error) {
-        // throw new Error("Ошибка при удалении заказа:")
-        console.error(error);
-    }
-}
-*/
 export const responseOrder = async (id: string, userdata: string, responseText: string): Promise<string | null> => {
     try {
         const AuthToken = localStorage.getItem("token");
@@ -236,6 +136,128 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
         return result.response_id;
     } catch (err) {
         console.error(err);
+        return null;
+    }
+}
+
+export const getResponses = async (userdata: string): Promise<Responses[] | []> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return [] // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/responses/list`, {
+            method: "GET",
+            headers: {"Authorization": AuthToken },
+        });
+
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+        const data = await ResponseOrders.json();
+        console.log("Сохраняем заказы в состояние:", data);
+        console.warn(data)
+
+        return data || [];
+    } catch (error) {
+        console.error(error);
+        return []
+    }
+}
+
+export const setStatus = async (userdata: string, status: boolean): Promise<null> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/users/tutor/active`, {
+            method: "POST",
+            body: JSON.stringify({
+                "is_active": status
+            }),
+            headers: {"Authorization": AuthToken,
+                "Content-Type": 'application/json',
+            },
+        });
+        console.log("Status:", status);
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const setName = async (userdata: string | undefined, name: string): Promise<null> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/users/tutor/name`, {
+            method: "POST",
+            body: JSON.stringify({
+                "name": name
+            }),
+            headers: {"Authorization": AuthToken,
+                "Content-Type": 'application/json',
+            },
+        });
+
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export const setBio = async (userdata: string, bio: string): Promise<null> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/users/tutor/bio`, {
+            method: "POST",
+            body: JSON.stringify({
+                "bio": bio
+            }),
+            headers: {"Authorization": AuthToken,
+                "Content-Type": 'application/json',
+            },
+        });
+
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+
+        return null;
+    } catch (error) {
+        console.error(error);
         return null;
     }
 }

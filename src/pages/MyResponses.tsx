@@ -3,19 +3,20 @@ import { Page } from '@/components/Page';
 import {Badge, Cell, Headline, Placeholder, Tabbar} from '@telegram-apps/telegram-ui';
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
-import {Order, OrderDetails} from "@/models/Order.ts";
-import {getOrders, getOrderById} from "@/api/Orders.ts";
+import {OrderDetails} from "@/models/Order.ts";
+import {getOrderById, getResponses} from "@/api/Orders.ts";
 import {initData, useSignal} from "@telegram-apps/sdk-react";
-import {Icon28Archive} from "@telegram-apps/telegram-ui/dist/icons/28/archive";
-import {Icon32ProfileColoredSquare} from "@telegram-apps/telegram-ui/dist/icons/32/profile_colored_square";
+import UserIcon from "@/icons/user.tsx";
+import OrdersIcon from "@/icons/orders.tsx";
+import ResponsesIcon from "@/icons/responses.tsx";
 
 
 export const ResponsesPage: FC = () => {
     const navigate = useNavigate();
     const [IsLoading, SetIsLoading] = useState<boolean>(true);
     const [Error, SetError] = useState<string | null>(null);
-    const [LoadOrder, SetNeworders] = useState<Order[]>([]);
-    const [currentTabId, setCurrentTab] = useState<string>("responses");
+    const [LoadOrder, SetNeworders] = useState<OrderDetails[]>([]);
+     const [currentTabId, setCurrentTab] = useState<string>("responses");
 
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 
@@ -23,17 +24,17 @@ export const ResponsesPage: FC = () => {
         {
             id: "orders",
             text: "Заказы",
-            Icon: Icon28Archive,
+            Icon: OrdersIcon,
         },
         {
             id: "profile",
             text: "Профиль",
-            Icon: Icon32ProfileColoredSquare,
+            Icon: UserIcon,
         },
         {
             id: "responses",
             text: "Отклики",
-            Icon: Icon32ProfileColoredSquare,
+            Icon: ResponsesIcon,
         },
     ];
 
@@ -45,11 +46,11 @@ export const ResponsesPage: FC = () => {
                     SetError("Нет токена");
                     return
                 }
-                const data = await getOrders(initDataRaw);
+                const data = await getResponses(initDataRaw);
                 const responded: OrderDetails[] = [];
                 for (const order of data) {
-                    const detailed = await getOrderById(order.id, initDataRaw);
-                    if (detailed && detailed.is_responsed) {
+                    const detailed = await getOrderById(order.order_id, initDataRaw);
+                    if (detailed) {
                         responded.push(detailed);
                     }
                 }

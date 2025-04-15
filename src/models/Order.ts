@@ -15,7 +15,8 @@ export interface Order {
 
 export interface Responses {
     id: string;
-    tutor_id: number;
+    order_id: string;
+    tutor_id: string;
     name: string;
     created_at: string;
 }
