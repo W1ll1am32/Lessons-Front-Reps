@@ -98,11 +98,11 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
             return null // navigate auth page
         }
 
-        console.error(`${api_link}/responses/id/${id}`)
+        console.log(`${api_link}/responses/id/${id}`)
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
             body: JSON.stringify({
-                "greetings": responseText
+                "message": responseText
             }),
             headers: {"Authorization": AuthToken, "Content-Type": "application/json"},
         })
@@ -128,8 +128,8 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
         console.log("Response status:", responseEditOrder.status);
         console.log("Response headers:", responseEditOrder.headers);
 
-        if (!responseEditOrder.ok) {
-            console.error(responseOrder.status);
+        if (responseEditOrder.status != 401) {
+            console.error(responseEditOrder.status);
             throw new Error("Ошибка при отклике");
         }
 
