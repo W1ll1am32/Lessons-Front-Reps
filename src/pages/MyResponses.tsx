@@ -96,7 +96,6 @@ export const ResponsesPage: FC = () => {
                     {LoadOrder.map((order, index) => (
                         <Cell
                             key={index}
-                            after={<Badge type="number">3</Badge>}
                             // before={<Avatar size={48} />}
                             description={order.description}
                             // subhead={order.}

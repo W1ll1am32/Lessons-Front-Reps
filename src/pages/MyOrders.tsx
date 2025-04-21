@@ -54,8 +54,8 @@ export const MyOrdersPage: FC = () => {
                     SetNeworders([])
                     setMaxPage(0)
                 } else {
-                    SetNeworders(data.orders);
-                    setMaxPage(data.pages)
+                    SetNeworders(data.Orders);
+                    setMaxPage(data.Pages)
                 }
             } catch (err) {
                 console.log(err);
@@ -101,7 +101,6 @@ export const MyOrdersPage: FC = () => {
                         {LoadOrder.map((order, index) => (
                             <Cell
                                 key={index}
-                                after={<Badge type="number">3</Badge>}
                                 // before={<Avatar size={48} />}
                                 description={order.description}
                                 // subhead={order.}

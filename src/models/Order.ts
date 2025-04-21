@@ -58,6 +58,33 @@ export interface OrderEdit {
 }
 
 export interface OrderPagination {
-    orders: Order[];
-    pages: number;
+    Orders: Order[];
+    Pages: number;
+}
+
+export interface Tutor {
+    id: string;
+    telegram_id: number;
+    name: string;
+}
+
+export interface Review {
+    id: string;
+    tutor_id: string;
+    student_id: string;
+    rating: number;
+    comment: string;
+    created_at: string;
+}
+
+export interface TutorProfile {
+    Tutor: Tutor;
+    Bio: string;
+    Response_count: number;
+    Reviews: Review[];
+    IsActive: boolean;
+    Rating: number;
+    ResponseCount: number;
+    Tags: string[];
+    CreatedAt: string;
 }

@@ -1,4 +1,4 @@
-import {OrderPagination, OrderDetails, Responses} from "@/models/Order.ts";
+import {OrderPagination, OrderDetails, Responses, TutorProfile} from "@/models/Order.ts";
 
 const api_link: string = 'https://lessonsmy.tech/api';
 
@@ -47,15 +47,9 @@ export const getOrders = async (userdata: string, limit: number, page: number): 
             throw new Error(errorText || 'Не удалось загрузить заказы');
         }
         const data = await ResponseOrders.json();
-        console.log("Сохраняем заказы в состояние:", data);
         console.warn(data)
 
-        const ordersData: OrderPagination = {
-            orders: data.Orders,
-            pages: data.Pages,
-        }
-
-        return ordersData;
+        return data;
     } catch (error) {
         console.error(error);
         return null
@@ -169,11 +163,11 @@ export const getResponses = async (userdata: string): Promise<Responses[] | []> 
     }
 }
 
-export const setStatus = async (userdata: string, status: boolean): Promise<null> => {
+export const setStatus = async (userdata: string | undefined, status: boolean): Promise<boolean> => {
     try {
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
-            return null // navigate auth page
+            return false // navigate auth page
         }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/active`, {
             method: "POST",
@@ -193,18 +187,18 @@ export const setStatus = async (userdata: string, status: boolean): Promise<null
             throw new Error(errorText || 'Не удалось загрузить заказы');
         }
 
-        return null;
+        return ResponseOrders.ok;
     } catch (error) {
         console.error(error);
-        return null;
+        return false;
     }
 }
 
-export const setName = async (userdata: string | undefined, name: string): Promise<null> => {
+export const setName = async (userdata: string | undefined, name: string): Promise<boolean> => {
     try {
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
-            return null // navigate auth page
+            return false // navigate auth page
         }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/name`, {
             method: "POST",
@@ -224,18 +218,18 @@ export const setName = async (userdata: string | undefined, name: string): Promi
             throw new Error(errorText || 'Не удалось загрузить заказы');
         }
 
-        return null;
+        return ResponseOrders.ok;
     } catch (error) {
         console.error(error);
-        return null;
+        return false;
     }
 }
 
-export const setBio = async (userdata: string, bio: string): Promise<null> => {
+export const setBio = async (userdata: string | undefined, bio: string): Promise<boolean> => {
     try {
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
-            return null // navigate auth page
+            return false // navigate auth page
         }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/bio`, {
             method: "POST",
@@ -255,7 +249,70 @@ export const setBio = async (userdata: string, bio: string): Promise<null> => {
             throw new Error(errorText || 'Не удалось загрузить заказы');
         }
 
-        return null;
+        return ResponseOrders.ok;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+export const setTags = async (userdata: string | undefined, tags: string[]): Promise<boolean> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return false // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/users/tutor/tags`, {
+            method: "POST",
+            body: JSON.stringify({
+                "tags": tags
+            }),
+            headers: {"Authorization": AuthToken,
+                "Content-Type": 'application/json',
+            },
+        });
+
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+
+        return ResponseOrders.ok;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+}
+
+export const getProfile = async (userdata: string | undefined): Promise<TutorProfile | null> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return null // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/users/tutor/profile`, {
+            method: "GET",
+            headers: {
+                "Authorization": AuthToken,
+            },
+        });
+
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+
+        const data = await ResponseOrders.json();
+        console.log("Сохраняем заказы в состояние:", data);
+        console.warn(data)
+
+        return data;
     } catch (error) {
         console.error(error);
         return null;
