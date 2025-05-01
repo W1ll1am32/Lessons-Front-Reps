@@ -1,6 +1,6 @@
 import {FC, useEffect, useState} from 'react';
 import { Page } from '@/components/Page';
-import {Badge, Cell, Headline, Placeholder, Tabbar, Pagination} from '@telegram-apps/telegram-ui';
+import {Badge, Cell, Headline, Placeholder, Tabbar, Pagination, Select} from '@telegram-apps/telegram-ui';
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
 import {Order} from "@/models/Order.ts";
@@ -19,6 +19,11 @@ export const MyOrdersPage: FC = () => {
     const [currentTabId, setCurrentTab] = useState<string>("orders");
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(1);
+    const [selectedTag, setSelectedTag] = useState<string | null>(null);
+    const availableTags = [
+        { value: 'cpp', label: 'C++' },
+        { value: 'python', label: 'Python' },
+    ];
 
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 
@@ -48,7 +53,7 @@ export const MyOrdersPage: FC = () => {
                     SetError("Нет токена");
                     return
                 }
-                const data = await getOrders(initDataRaw, 4, page);
+                const data = await getOrders(initDataRaw, 4, page, selectedTag);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
                 if (data == null) {
                     SetNeworders([])
@@ -66,7 +71,7 @@ export const MyOrdersPage: FC = () => {
         };
 
         LoadOrders();
-    }, [page]); // [initDataRaw]
+    }, [page, selectedTag]); // [initDataRaw]
 
     const HandleLinkFunc = (id: string) => {
         navigate(`/order/${id}`);
@@ -76,10 +81,28 @@ export const MyOrdersPage: FC = () => {
         setPage(newPage);
     };
 
+    const handleTagChange = (value: string) => {
+        setSelectedTag(value || null);
+        setPage(1);
+    };
+
     return (
         <Page back={false}>
             <div className={styles.Title}>
                 <Headline weight="1"> Доступные заказы </Headline>
+            </div>
+            <div className={styles.tagSelector}>
+                <Select
+                    value={selectedTag || ''}
+                    onChange={(e) => handleTagChange(e.target.value)}
+                >
+                    <option value="">Все теги</option>
+                    {availableTags.map((tag) => (
+                        <option key={tag.value} value={tag.value}>
+                            {tag.label}
+                        </option>
+                    ))}
+                </Select>
             </div>
             { IsLoading? (
                 <div>Загружаем заказы...</div>

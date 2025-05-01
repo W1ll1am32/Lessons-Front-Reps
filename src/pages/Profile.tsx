@@ -237,7 +237,7 @@ export const ProfilePage: FC = () => {
                     }}
                 >
                     <p className={styles.statusText}>
-                        Статус: {user.isActive ? "Онлайн" : "Оффлайн"}
+                        Статус профиля: {user.isActive ? "Активный" : "Неактивный"}
                     </p>
                     <label className={styles.switch}>
                         <input

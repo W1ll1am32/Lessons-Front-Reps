@@ -2,6 +2,65 @@ import {OrderPagination, OrderDetails, Responses, TutorProfile} from "@/models/O
 
 const api_link: string = 'https://lessonsmy.tech/api';
 
+interface JWTPayload {
+    exp?: number;
+    [key: string]: any; // Allow other fields
+}
+
+function isTokenExpired(token: string): boolean {
+    try {
+        // Split the token into parts
+        const [, payload] = token.split('.');
+
+        // Decode base64 payload (works in both browser and Node.js)
+        const decodedPayload = JSON.parse(
+            typeof atob === 'function'
+                ? atob(payload) // Browser environment
+                : Buffer.from(payload, 'base64').toString('utf8') // Node.js environment
+        ) as JWTPayload;
+
+        // Check if exp exists and compare with current time (in seconds)
+        if (decodedPayload.exp) {
+            const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+            return decodedPayload.exp < currentTime;
+        }
+
+        // If no exp claim, assume not expired
+        return false;
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return true; // Treat invalid tokens as expired for safety
+    }
+}
+
+export const getToken = async (userdata: string): Promise<string | null> => {
+    try {
+        if (!userdata) {
+            return null // navigate auth page
+        }
+        const ResponseData = await fetch(`https://lessonsmy.tech/auth/init-data`, {
+            method: "POST",
+            headers: {"initData": userdata,
+                "role": "Tutor",
+                "Content-Type": 'application/json'},
+        });
+
+        console.log("Response status:", ResponseData.status);
+        console.log("Response headers:", ResponseData.headers);
+
+        if (!ResponseData.ok) {
+            const errorText = await ResponseData.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+        const result = await ResponseData.json();
+        return result.token;
+    } catch (error) {
+        console.error(error);
+        return null
+    }
+}
+
+
 export const sendData = async (userdata: string): Promise<string | null> => {
     try {
         const AuthToken = localStorage.getItem("token");
@@ -28,13 +87,27 @@ export const sendData = async (userdata: string): Promise<string | null> => {
     }
 }
 
-export const getOrders = async (userdata: string, limit: number, page: number): Promise<OrderPagination | null> => {
+export const getOrders = async (userdata: string, limit: number, page: number, tag: string | null): Promise<OrderPagination | null> => {
     try {
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
-        const ResponseOrders = await fetch(`${api_link}/orders/pagination?size=${limit}&page=${page}`, {
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return null;
+            }
+        }
+        let query = ``;
+        if (tag) {
+            query = `${api_link}/orders/pagination?size=${limit}&page=${page}&tag=${tag}`;
+        } else {
+            query = `${api_link}/orders/pagination?size=${limit}&page=${page}`;
+        }
+        const ResponseOrders = await fetch(query, {
             method: "GET",
             headers: {"Authorization": AuthToken },
         });
@@ -61,6 +134,14 @@ export const getOrderById = async (id: string, userdata: string): Promise<OrderD
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
+        }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return null;
+            }
         }
         const ResponseOrder = await fetch(`${api_link}/orders/mini/id/${id}`, {
             method: "GET",
@@ -91,7 +172,14 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
-
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return null;
+            }
+        }
         console.log(`${api_link}/responses/id/${id}`)
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
@@ -140,6 +228,14 @@ export const getResponses = async (userdata: string): Promise<Responses[] | []> 
         if (!AuthToken || !userdata) {
             return [] // navigate auth page
         }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return []
+            }
+        }
         const ResponseOrders = await fetch(`${api_link}/responses/list`, {
             method: "GET",
             headers: {"Authorization": AuthToken },
@@ -168,6 +264,14 @@ export const setStatus = async (userdata: string | undefined, status: boolean): 
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
+        }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return false;
+            }
         }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/active`, {
             method: "POST",
@@ -200,6 +304,14 @@ export const setName = async (userdata: string | undefined, name: string): Promi
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return false;
+            }
+        }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/name`, {
             method: "POST",
             body: JSON.stringify({
@@ -230,6 +342,14 @@ export const setBio = async (userdata: string | undefined, bio: string): Promise
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
+        }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return false;
+            }
         }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/bio`, {
             method: "POST",
