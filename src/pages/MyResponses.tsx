@@ -1,10 +1,10 @@
 import {FC, useEffect, useState} from 'react';
 import { Page } from '@/components/Page';
-import {Badge, Cell, Headline, Placeholder, Tabbar} from '@telegram-apps/telegram-ui';
+import {Badge, Cell, Headline, Placeholder, Spinner, Tabbar} from '@telegram-apps/telegram-ui';
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
-import {OrderDetails} from "@/models/Order.ts";
-import {getOrderById, getResponses} from "@/api/Orders.ts";
+import {Responses} from "@/models/Order.ts";
+import {getResponses} from "@/api/Orders.ts";
 import {initData, useSignal} from "@telegram-apps/sdk-react";
 import UserIcon from "@/icons/user.tsx";
 import OrdersIcon from "@/icons/orders.tsx";
@@ -15,8 +15,9 @@ export const ResponsesPage: FC = () => {
     const navigate = useNavigate();
     const [IsLoading, SetIsLoading] = useState<boolean>(true);
     const [Error, SetError] = useState<string | null>(null);
-    const [LoadOrder, SetNeworders] = useState<OrderDetails[]>([]);
-     const [currentTabId, setCurrentTab] = useState<string>("responses");
+    const [LoadResponse, SetResponses] = useState<Responses[]>([]);
+    const [currentTabId, setCurrentTab] = useState<string>("responses");
+    const [expandedResponseId, setExpandedResponseId] = useState<string | null>(null);
 
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 
@@ -40,23 +41,15 @@ export const ResponsesPage: FC = () => {
 
 
     useEffect(() => {
-        const LoadOrders = async () => {
+        const LoadResponses = async () => {
             try {
                 if (!initDataRaw) {
                     SetError("Нет токена");
                     return
                 }
                 const data = await getResponses(initDataRaw);
-                const responded: OrderDetails[] = [];
-                for (const order of data) {
-                    const detailed = await getOrderById(order.order_id, initDataRaw);
-                    if (detailed) {
-                        responded.push(detailed);
-                    }
-                }
-                console.log("Сохраняем отклики в состояние MyResponses:", responded);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
-                SetNeworders(responded);
+                SetResponses(data);
             } catch (err) {
                 console.log(err);
                 SetError("Не получили заказы");
@@ -65,25 +58,29 @@ export const ResponsesPage: FC = () => {
             }
         };
 
-        LoadOrders();
+        LoadResponses();
     }, []); // [initDataRaw]
 
     const HandleLinkFunc = (id: string) => {
         navigate(`/order/${id}`);
     }
 
+    const ToggleExpand = (id: string) => {
+        setExpandedResponseId(expandedResponseId === id ? null : id);
+    };
+
     return (
         <Page back={false}>
             <div className={styles.Title}>
-                <Headline weight="1"> Откликнутые заказы </Headline>
+                <Headline weight="1"> Отклики </Headline>
             </div>
             { IsLoading? (
-                <div>Загружаем заказы...</div>
+                <Spinner className={styles.spinner} size="l"/>
             ): Error? (
                 <div>Ошибка(</div>
-            ): LoadOrder.length == 0 ? (
+            ): LoadResponse.length == 0 ? (
                 <div className={styles.noOrders}>
-                    <Placeholder header="Нет ни одного заказа">
+                    <Placeholder header="Нет ни одного отклика">
                         <img
                             alt="Telegram sticker"
                             className="blt0jZBzpxuR4oDhJc8s"
@@ -93,18 +90,51 @@ export const ResponsesPage: FC = () => {
                 </div>
             ) : (
                 <div className={styles.orderList}>
-                    {LoadOrder.map((order, index) => (
-                        <Cell
-                            key={index}
-                            // before={<Avatar size={48} />}
-                            description={order.description}
-                            // subhead={order.}
-                            // subtitle={order.min_price}
-                            titleBadge={<Badge type="dot" />}
-                            onClick={() => HandleLinkFunc(order.id)}
-                        >
-                            {order.title}
-                        </Cell>
+                    {LoadResponse.map((response) => (
+                        <div key={response.id} className={styles.responseBlock}>
+                            <Cell
+                                onClick={() => ToggleExpand(response.id)}
+                                titleBadge={<Badge type="dot" />}
+                                after={
+                                    <span>{expandedResponseId === response.id ? '▲' : '▼'}</span>
+                                }
+                            >
+                                Отклик {response.id}
+                            </Cell>
+                            <div
+                                className={`${styles.responseDetails} ${
+                                    expandedResponseId === response.id ? styles.expanded : styles.collapsed
+                                }`}
+                            >
+                                <div className={styles.responseDetailsInner}>
+                                    <div>Детали отклика:</div>
+                                    <div>
+                                        ID заказа:{' '}
+                                        <span
+                                        className={styles.orderId}
+                                        onClick={() => HandleLinkFunc(response.order_id)}
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === 'Space') {
+                                                HandleLinkFunc(response.order_id);
+                                            }
+                                        }}
+                                        aria-label={`Перейти к заказу ${response.id}`}
+                                        >
+                                        {response.order_id}
+                                        </span>
+                                    </div>
+                                    <div>Дата и время: {new Date(response.created_at).toLocaleString("ru-RU", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    }) || 'Неизвестно'}</div>
+                                </div>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

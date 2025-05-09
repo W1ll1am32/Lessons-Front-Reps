@@ -1,6 +1,7 @@
 import {FC, useEffect, useState} from 'react';
 import { Page } from '@/components/Page';
-import {Badge, Cell, Headline, Placeholder, Tabbar, Pagination, Select} from '@telegram-apps/telegram-ui';
+import {Badge, Cell, Headline, Placeholder, Tabbar, Pagination, Select, Spinner} from '@telegram-apps/telegram-ui';
+import {MultiselectOption} from "@telegram-apps/telegram-ui/dist/components/Form/Multiselect/types";
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
 import {Order} from "@/models/Order.ts";
@@ -9,6 +10,7 @@ import {initData, useSignal} from "@telegram-apps/sdk-react";
 import UserIcon from "@/icons/user.tsx";
 import OrdersIcon from "@/icons/orders.tsx";
 import ResponsesIcon from "@/icons/responses.tsx";
+import text_tags from "./Tags.txt";
 
 
 export const MyOrdersPage: FC = () => {
@@ -20,10 +22,7 @@ export const MyOrdersPage: FC = () => {
     const [page, setPage] = useState(1);
     const [maxPage, setMaxPage] = useState(1);
     const [selectedTag, setSelectedTag] = useState<string | null>(null);
-    const availableTags = [
-        { value: 'cpp', label: 'C++' },
-        { value: 'python', label: 'Python' },
-    ];
+    const [availableTags, setOptions] = useState<MultiselectOption[]>([]);
 
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 
@@ -45,6 +44,42 @@ export const MyOrdersPage: FC = () => {
         },
     ];
 
+    useEffect(() => {
+        const fetchTags = async () => {
+            try {
+                const response = await fetch(text_tags, {
+                    headers: {
+                        Accept: "text/plain; charset=utf-8",
+                    },
+                });
+                if (!response.ok) {
+                    // @ts-ignore
+                    throw new Error("Failed to fetch tags.txt");
+                }
+                const text = await response.text();
+                const tagsArray = text
+                    .replace(/\r\n/g, "\n")
+                    .split("\n\n")
+                    .map((tag) => tag.trim())
+                    .filter((tag) => tag.length > 0);
+                const fetchedOptions: MultiselectOption[] = tagsArray.map(tag => ({
+                    value: tag.toLowerCase().replace(/\s+/g, '_'), // Convert to lowercase and replace spaces with underscores
+                    label: tag,
+                }));
+                console.log('Fetchnul:', fetchedOptions);
+                setOptions(fetchedOptions);
+            } catch (error) {
+                console.error('Error fetching tags:', error);
+                // Fallback to default options if fetch fails
+                setOptions([
+                    { value: 'cpp', label: 'C++' },
+                    { value: 'python', label: 'Python' },
+                ]);
+            }
+        };
+
+        fetchTags();
+    }, []);
 
     useEffect(() => {
         const LoadOrders = async () => {
@@ -55,7 +90,7 @@ export const MyOrdersPage: FC = () => {
                 }
                 const data = await getOrders(initDataRaw, 4, page, selectedTag);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
-                if (data == null) {
+                if (data == null || data.Orders == null) {
                     SetNeworders([])
                     setMaxPage(0)
                 } else {
@@ -93,6 +128,7 @@ export const MyOrdersPage: FC = () => {
             </div>
             <div className={styles.tagSelector}>
                 <Select
+                    className={styles.selectArea}
                     value={selectedTag || ''}
                     onChange={(e) => handleTagChange(e.target.value)}
                 >
@@ -105,9 +141,7 @@ export const MyOrdersPage: FC = () => {
                 </Select>
             </div>
             { IsLoading? (
-                <div>Загружаем заказы...</div>
-            ): Error? (
-                <div>Ошибка(</div>
+                <Spinner className={styles.spinner} size="l"/>
             ): LoadOrder.length == 0 ? (
                 <div className={styles.noOrders}>
                     <Placeholder header="Нет ни одного заказа">

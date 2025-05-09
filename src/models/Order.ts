@@ -18,6 +18,7 @@ export interface Responses {
     order_id: string;
     tutor_id: string;
     name: string;
+    is_final: boolean;
     created_at: string;
 }
 
@@ -63,15 +64,17 @@ export interface OrderPagination {
 }
 
 export interface Tutor {
-    id: string;
-    telegram_id: number;
-    name: string;
+    Id: string;
+    TelegramId: number;
+    Name: string;
+    Role: string;
+    IsBanned: boolean;
 }
 
 export interface Review {
     id: string;
     tutor_id: string;
-    student_id: string;
+    is_active: boolean;
     rating: number;
     comment: string;
     created_at: string;
@@ -80,11 +83,10 @@ export interface Review {
 export interface TutorProfile {
     Tutor: Tutor;
     Bio: string;
-    Response_count: number;
+    ResponseCount: number;
     Reviews: Review[];
     IsActive: boolean;
-    Rating: number;
-    ResponseCount: number;
     Tags: string[];
+    Rating: number;
     CreatedAt: string;
 }

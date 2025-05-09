@@ -21,4 +21,5 @@ export const routes: Route[] = [
   { path: '/order/:id', Component: OrderDetailsPage },
   { path: '/profile', Component: ProfilePage },
   { path: '/responses', Component: ResponsesPage },
+  { path: '/response/:id', Component: OrderDetailsPage },
 ];

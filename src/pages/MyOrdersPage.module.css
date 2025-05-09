@@ -5,6 +5,13 @@
     background: var(--tgui--secondary_bg_color);
 }
 
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .Title {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -52,4 +59,122 @@
 .pagination span {
     font-size: 14px;
     color: var(--tgui--text_color);
+}
+
+.responseBlock {
+    margin-bottom: 8px;
+    border: 1px solid var(--tgui--hint_color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.responseDetails {
+    background-color: var(--tgui--secondary_bg_color);
+    color: var(--tgui--text_color);
+    font-size: 14px;
+    line-height: 1.5;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.responseDetailsInner {
+    padding: 16px;
+}
+
+.expanded {
+    max-height: 500px; /* Adjust based on content size */
+}
+
+.collapsed {
+    max-height: 0;
+}
+
+.viewOrderButton {
+    margin-top: 12px;
+    padding: 8px 16px;
+    background-color: var(--tgui--button_color);
+    color: var(--tgui--text_color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.viewOrderButton:hover {
+    background-color: var(--tgui--button_color);
+}
+
+.orderId {
+    margin-top: 12px;
+    color: var(--tgui--link_color); /* Use Telegram's link color */
+    cursor: pointer;
+    display: inline-block;
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.orderId:hover,
+.orderId:focus {
+    color: var(--tgui--button_color); /* Slightly darker for hover/focus */
+    outline: none;
+}
+
+.orderId:focus {
+    text-decoration: underline;
+}
+
+.tagSelector {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.searchContainer {
+    position: relative;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    background-color: var(--tgui--secondary_bg_color);
+    border: 1px solid var(--tgui--hint_color);
+    border-radius: 4px;
+    color: var(--tgui--text_color);
+    font-size: 16px;
+}
+
+.searchInput:focus {
+    outline: none;
+    border-color: var(--tgui--button_color);
+}
+
+.selectArea {
+    width: 100%;
+    background-color: var(--tgui--secondary_bg_color);
+    border: 1px solid var(--tgui--hint_color);
+    border-radius: 4px;
+    color: var(--tgui--text_color);
+    font-size: 16px;
+}
+
+/* Style the dropdown menu */
+.tgui-select-dropdown {
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    background-color: var(--tgui--bg_color);
+    border: 1px solid var(--tgui--hint_color);
+    border-radius: 4px;
+}
+
+/* Ensure dropdown options are styled */
+.selectArea option {
+    background-color: var(--tgui--bg_color);
+    color: var(--tgui--text_color);
+}
+
+/* Focus and active states */
+.selectArea:focus,
+.selectArea:active {
+    outline: none;
+    border-color: var(--tgui--button_color);
 }

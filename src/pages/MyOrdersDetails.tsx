@@ -46,13 +46,20 @@ export const OrderDetailsPage: FC = () => {
         if (!mainButton.isMounted()) {
             mainButton.mount();
         }
-        if (mainButton.setParams.isAvailable()) {
+        if (!isLoading) {
+            if (mainButton.setParams.isAvailable()) {
+                mainButton.setParams({
+                    text: 'Ответить',
+                    // убрать в отдельную проверку!
+                    // нужен ли ref?
+                    isEnabled: true,//titleRef.current.trim() !== '' && descriptionRef.current.trim() !== '' && tagsRef.current.length > 0, // прикол
+                    isVisible: !order?.is_responsed, // Show only when order is loaded and not responded
+                });
+            }
+        } else {
             mainButton.setParams({
-                text: 'Ответить',
-                // убрать в отдельную проверку!
-                // нужен ли ref?
-                isEnabled: true,//titleRef.current.trim() !== '' && descriptionRef.current.trim() !== '' && tagsRef.current.length > 0, // прикол
-                isVisible: !order?.is_responsed
+                isVisible: false,
+                isEnabled: false,
             });
         }
 
@@ -72,7 +79,7 @@ export const OrderDetailsPage: FC = () => {
                 console.log("удаляем...");
                 mainButton.unmount();
             }
-    }, [order]);
+    }, [isLoading, order]);
 
     const handleSubmitResponse = async () => {
         if (!id || !initDataRaw || !responseText.trim()) return;

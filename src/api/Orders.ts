@@ -40,9 +40,11 @@ export const getToken = async (userdata: string): Promise<string | null> => {
         }
         const ResponseData = await fetch(`https://lessonsmy.tech/auth/init-data`, {
             method: "POST",
-            headers: {"initData": userdata,
+            body: JSON.stringify({
+                "initData": userdata,
                 "role": "Tutor",
-                "Content-Type": 'application/json'},
+            }),
+            headers: {"Content-Type": 'application/json'},
         });
 
         console.log("Response status:", ResponseData.status);
@@ -184,7 +186,7 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
         const responseOrder = await fetch(`${api_link}/responses/id/${id}`, {
             method: 'POST',
             body: JSON.stringify({
-                "message": responseText
+                "greetings": responseText
             }),
             headers: {"Authorization": AuthToken, "Content-Type": "application/json"},
         })
@@ -436,5 +438,37 @@ export const getProfile = async (userdata: string | undefined): Promise<TutorPro
     } catch (error) {
         console.error(error);
         return null;
+    }
+}
+
+export const setReviewStatus = async (userdata: string | undefined, id: string): Promise<boolean> => {
+    try {
+        const AuthToken = localStorage.getItem("token");
+        if (!AuthToken || !userdata) {
+            return false // navigate auth page
+        }
+        const ResponseOrders = await fetch(`${api_link}/users/review/activate`, {
+            method: "POST",
+            body: JSON.stringify({
+                "review_id": id,
+            }),
+            headers: {
+                "Authorization": AuthToken,
+                "Content-Type": 'application/json',
+            },
+        });
+
+        console.log("Response status:", ResponseOrders.status);
+        console.log("Response headers:", ResponseOrders.headers);
+
+        if (!ResponseOrders.ok) {
+            const errorText = await ResponseOrders.text();
+            throw new Error(errorText || 'Не удалось загрузить заказы');
+        }
+
+        return ResponseOrders.ok;
+    } catch (error) {
+        console.error(error);
+        return false;
     }
 }
