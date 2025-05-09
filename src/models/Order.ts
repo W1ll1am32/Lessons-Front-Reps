@@ -26,6 +26,7 @@ export interface OrderDetails {
     id: string;
     student_id: string;
     title: string;
+    name: string;
     description: string;
     tags: string[];
     min_price: number;

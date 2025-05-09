@@ -49,7 +49,7 @@ export const OrderDetailsPage: FC = () => {
         if (!isLoading) {
             if (mainButton.setParams.isAvailable()) {
                 mainButton.setParams({
-                    text: 'Ответить',
+                    text: 'Откликнуться',
                     // убрать в отдельную проверку!
                     // нужен ли ref?
                     isEnabled: true,//titleRef.current.trim() !== '' && descriptionRef.current.trim() !== '' && tagsRef.current.length > 0, // прикол
@@ -119,11 +119,22 @@ export const OrderDetailsPage: FC = () => {
                     <Headline weight="1">Заказа не существует</Headline>
                 ) : (
                     <>
-                        <Headline weight="2">Детали заказа</Headline>
+                        <Headline weight="2" className={styles.centeredHeadline}>
+                            Детали заказа
+                        </Headline>
                         <div className={styles.orderDetails}>
-                        <Headline weight="1">{order.title}</Headline>
-                        <p>Ставка: {order.min_price} - {order.max_price}</p>
-                        <p>Описание: {order.description}</p>
+                            <Headline weight="1">{order.title}</Headline>
+                            <p>Минимальная цена: {order.min_price}</p>
+                            <p>Максимальная цена: {order.max_price}</p>
+                            <p>Имя: {order.name}</p>
+                            <p>Описание: {order.description}</p>
+                            <p>Создан: {new Date(order.created_at).toLocaleString("ru-RU", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            }) || 'Неизвестно'}</p>
                         </div>
 
                         {showResponseForm && (
