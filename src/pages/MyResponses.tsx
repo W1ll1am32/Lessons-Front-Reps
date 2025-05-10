@@ -1,7 +1,7 @@
 import {FC, useEffect, useState} from 'react';
 import { Page } from '@/components/Page';
 import {Badge, Cell, Headline, Placeholder, Spinner, Tabbar} from '@telegram-apps/telegram-ui';
-import styles from './MyOrdersPage.module.css';
+import styles from './MyResponses.module.css';
 import {useNavigate} from "react-router-dom";
 import {Responses} from "@/models/Order.ts";
 import {getResponses} from "@/api/Orders.ts";
@@ -72,7 +72,7 @@ export const ResponsesPage: FC = () => {
     return (
         <Page back={false}>
             <div className={styles.Title}>
-                <Headline weight="1"> Отклики </Headline>
+                <Headline weight="1">Мои отклики</Headline>
             </div>
             { IsLoading? (
                 <Spinner className={styles.spinner} size="l"/>
@@ -89,17 +89,23 @@ export const ResponsesPage: FC = () => {
                     </Placeholder>
                 </div>
             ) : (
-                <div className={styles.orderList}>
+                <div className={styles.responseList}>
                     {LoadResponse.map((response) => (
                         <div key={response.id} className={styles.responseBlock}>
                             <Cell
                                 onClick={() => ToggleExpand(response.id)}
-                                titleBadge={<Badge type="dot" />}
+                                titleBadge={<div>{response.is_final && (<Badge type="dot" />) }</div>}
                                 after={
                                     <span>{expandedResponseId === response.id ? '▲' : '▼'}</span>
                                 }
                             >
-                                Отклик {response.id}
+                                Отклик {new Date(response.created_at).toLocaleString("ru-RU", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            }) || 'Неизвестно'}
                             </Cell>
                             <div
                                 className={`${styles.responseDetails} ${
@@ -107,31 +113,22 @@ export const ResponsesPage: FC = () => {
                                 }`}
                             >
                                 <div className={styles.responseDetailsInner}>
-                                    <div>Детали отклика:</div>
-                                    <div>
-                                        ID заказа:{' '}
+                                    <div className={styles.detailItem}>
                                         <span
-                                        className={styles.orderId}
-                                        onClick={() => HandleLinkFunc(response.order_id)}
-                                        role="button"
-                                        tabIndex={0}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter' || e.key === 'Space') {
-                                                HandleLinkFunc(response.order_id);
-                                            }
-                                        }}
-                                        aria-label={`Перейти к заказу ${response.id}`}
+                                            className={styles.orderId}
+                                            onClick={() => HandleLinkFunc(response.order_id)}
+                                            role="button"
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === 'Space') {
+                                                    HandleLinkFunc(response.order_id);
+                                                }
+                                            }}
+                                            aria-label={`Перейти к заказу ${response.order_id}`}
                                         >
-                                        {response.order_id}
-                                        </span>
+                      Перейти к заказу
+                    </span>
                                     </div>
-                                    <div>Дата и время: {new Date(response.created_at).toLocaleString("ru-RU", {
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                        hour: "2-digit",
-                                        minute: "2-digit",
-                                    }) || 'Неизвестно'}</div>
                                 </div>
                             </div>
                         </div>

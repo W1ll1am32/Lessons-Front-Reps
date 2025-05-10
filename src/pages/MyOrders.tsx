@@ -1,6 +1,6 @@
 import {FC, useEffect, useState} from 'react';
 import { Page } from '@/components/Page';
-import {Badge, Cell, Headline, Placeholder, Tabbar, Pagination, Select, Spinner} from '@telegram-apps/telegram-ui';
+import {Banner, Headline, Placeholder, Tabbar, Pagination, Select, Spinner} from '@telegram-apps/telegram-ui';
 import {MultiselectOption} from "@telegram-apps/telegram-ui/dist/components/Form/Multiselect/types";
 import styles from './MyOrdersPage.module.css';
 import {useNavigate} from "react-router-dom";
@@ -156,17 +156,39 @@ export const MyOrdersPage: FC = () => {
                 <>
                     <div className={styles.orderList}>
                         {LoadOrder.map((order, index) => (
-                            <Cell
+                            <Banner
                                 key={index}
+                                // after={<Badge type="number">{order.response_count}</Badge>}
                                 // before={<Avatar size={48} />}
+                                header={order.title}
+                                subheader={'Цена мин: ' + order.min_price + ' макс: ' + order.max_price}
                                 description={order.description}
+                                className={styles.orderItem}
                                 // subhead={order.}
                                 // subtitle={order.min_price}
-                                titleBadge={<Badge type="dot" />}
+                                // titleBadge={order.status == "New" ? <Badge type="dot"/>: <Badge type="dot"/>}
                                 onClick={() => HandleLinkFunc(order.id)}
                             >
-                                {order.title}
-                            </Cell>
+                                <div className={styles.bannerContent}>
+                                    {order.tags && order.tags.length > 0 && (
+                                        <div className={styles.tagsContainer}>
+                                            {order.tags.map((tag, tagIndex) => (
+                                                <span key={tagIndex} className={styles.tag}>
+                {tag
+                    .replace(/_/g, ' ') // Replace underscores with spaces
+                    .split(' ') // Split into words
+                    .map((word, index) =>
+                        index === 0
+                            ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                            : word.toLowerCase()
+                    ) // Capitalize first letter of first word, lowercase others
+                    .join(' ')}
+            </span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </Banner>
                         ))}
                     </div>
                     <div>

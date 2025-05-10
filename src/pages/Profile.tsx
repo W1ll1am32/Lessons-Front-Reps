@@ -1,5 +1,5 @@
-import { FC, useEffect, useState, useRef } from "react";
-import { Page } from "@/components/Page";
+import { FC, useEffect, useState, useRef } from 'react';
+import { Page } from '@/components/Page';
 import {
     Headline,
     Button,
@@ -8,40 +8,42 @@ import {
     Modal,
     List,
     Cell,
-    Checkbox, Spinner,
-} from "@telegram-apps/telegram-ui";
-import { useNavigate } from "react-router-dom";
-import { initData, useSignal } from "@telegram-apps/sdk-react";
-import {setName, setBio, setStatus, getProfile, setTags, setReviewStatus} from "@/api/Orders.ts";
-import styles from "./ProfilePage.module.css";
-import UserIcon from "@/icons/user.tsx";
-import EditIcon from "@/icons/edit.tsx";
-import OrdersIcon from "@/icons/orders.tsx";
-import ResponsesIcon from "@/icons/responses.tsx";
-import text_tags from "./Tags.txt";
-import {Review} from "@/models/Order.ts";
+    Checkbox,
+    Spinner,
+} from '@telegram-apps/telegram-ui';
+import { useNavigate } from 'react-router-dom';
+import { initData, useSignal, openTelegramLink } from '@telegram-apps/sdk-react';
+import { setName, setBio, setStatus, getProfile, setTags, setReviewStatus } from '@/api/Orders.ts';
+import styles from './ProfilePage.module.css';
+import UserIcon from '@/icons/user.tsx';
+import EditIcon from '@/icons/edit.tsx';
+import OrdersIcon from '@/icons/orders.tsx';
+import ResponsesIcon from '@/icons/responses.tsx';
+import text_tags from './Tags.txt';
+import { Review } from '@/models/Order.ts';
 
 export const ProfilePage: FC = () => {
     const navigate = useNavigate();
-    const [IsLoading, SetIsLoading] = useState<boolean>(true);
-    const [currentTabId, setCurrentTab] = useState<string>("profile");
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [currentTabId, setCurrentTab] = useState<string>('profile');
     const [isEditingName, setIsEditingName] = useState<boolean>(false);
     const [isEditingDescription, setIsEditingDescription] = useState<boolean>(false);
     const [isTagModalOpen, setIsTagModalOpen] = useState<boolean>(false);
-    const [tagSearch, setTagSearch] = useState<string>("");
+    const [tagSearch, setTagSearch] = useState<string>('');
     const [availableTags, setAvailableTags] = useState<string[]>([]);
-    const [expandedReviews, setExpandedReviews] = useState<string[]>([]); // Track expanded reviews
+    const [expandedReviews, setExpandedReviews] = useState<string[]>([]);
+    const [hasEditedTags, setHasEditedTags] = useState<boolean>(false);
+
     const [user, setUser] = useState({
-        name: "Test",
+        name: 'Test',
         username: 0,
-        avatar: "https://via.placeholder.com/100",
-        description: "Test description.",
+        avatar: 'https://via.placeholder.com/100',
+        description: 'Test description.',
         isActive: true,
         tags: [] as string[],
         responseCount: 0,
-        reviews: [] as Review[], // Add reviews field
+        reviews: [] as Review[],
     });
-
     const [editedUser, setEditedUser] = useState(user);
     const [selectedTags, setSelectedTags] = useState<string[]>(user.tags);
     const initDataRaw = useSignal<string | undefined>(initData.raw);
@@ -74,38 +76,48 @@ export const ProfilePage: FC = () => {
     }, []);
 
     useEffect(() => {
+        const formatTagForDisplay = (tag: string): string => {
+            const withSpaces = tag.replace(/_/g, ' '); // Replace underscores with spaces
+            return withSpaces.charAt(0).toUpperCase() + withSpaces.slice(1).toLowerCase(); // Capitalize first letter, lowercase the rest
+        };
         const fetchProfile = async () => {
             try {
                 const profile = await getProfile(initDataRaw);
                 if (profile) {
+                    const formattedTags = profile.Tags
+                        ? profile.Tags.map((tag: string) => formatTagForDisplay(tag))
+                        : [];
                     setUser({
-                        name: profile.Tutor.Name || "Ваше имя",
+                        name: profile.Tutor.Name || 'Ваше имя',
                         username: profile.Tutor.TelegramId,
-                        avatar: "https://via.placeholder.com/100",
-                        description: profile.Bio || "Здесь Ваше описание",
+                        avatar: 'https://via.placeholder.com/100',
+                        description: profile.Bio || 'Здесь Ваше описание',
                         isActive: profile.IsActive,
-                        tags: profile.Tags || [],
+                        tags: formattedTags,
                         responseCount: profile.ResponseCount || 0,
-                        reviews: profile.Reviews || [], // Add reviews
+                        reviews: profile.Reviews || [],
                     });
                     setEditedUser({
-                        name: profile.Tutor.Name || "Ваше имя",
+                        name: profile.Tutor.Name || 'Ваше имя',
                         username: profile.Tutor.TelegramId,
-                        avatar: "https://via.placeholder.com/100",
-                        description: profile.Bio || "Здесь Ваше описание",
+                        avatar: 'https://via.placeholder.com/100',
+                        description: profile.Bio || 'Здесь Ваше описание',
                         isActive: profile.IsActive,
-                        tags: profile.Tags || [],
+                        tags: formattedTags,
                         responseCount: profile.ResponseCount || 0,
-                        reviews: profile.Reviews || [], // Add reviews
+                        reviews: profile.Reviews || [],
                     });
-                    setSelectedTags(profile.Tags || []);
+                    setSelectedTags(formattedTags);
+                    if (formattedTags.length) {
+                        setHasEditedTags(true);
+                    }
                 } else {
-                    console.error("Failed to fetch profile or user not authenticated");
+                    console.error('Failed to fetch profile or user not authenticated');
                 }
             } catch (err) {
-                console.error("Error fetching profile:", err);
+                console.error('Error fetching profile:', err);
             } finally {
-                SetIsLoading(false);
+                setIsLoading(false);
             }
         };
 
@@ -119,10 +131,10 @@ export const ProfilePage: FC = () => {
                 setUser({ ...user, name: editedUser.name });
                 setIsEditingName(false);
             } else {
-                throw new Error("Не удалось поменять имя");
+                throw new Error('Не удалось поменять имя');
             }
         } catch (err) {
-            console.error("Error updating name:", err);
+            console.error('Error updating name:', err);
         }
     };
 
@@ -133,36 +145,39 @@ export const ProfilePage: FC = () => {
                 setUser({ ...user, description: editedUser.description });
                 setIsEditingDescription(false);
             } else {
-                throw new Error("Не удалось поменять описание");
+                throw new Error('Не удалось поменять описание');
             }
         } catch (err) {
-            console.error("Error updating bio:", err);
+            console.error('Error updating bio:', err);
         }
     };
 
     const handleSaveTags = async () => {
+        if (hasEditedTags && selectedTags.length < 1) {
+            alert('После редактирования должен остаться хотя бы 1 тег');
+            return;
+        }
         try {
-            console.error("Сохран Тэги:", selectedTags);
-            const transformedTags = selectedTags.map(tag =>
-                tag.toLowerCase().replace(/\s+/g, '_')
-            );
+            const transformedTags = selectedTags.map((tag) => tag.toLowerCase().replace(/\s+/g, '_'));
             const status = await setTags(initDataRaw, transformedTags);
             if (status) {
                 setUser({ ...user, tags: selectedTags });
                 setEditedUser({ ...editedUser, tags: selectedTags });
                 setIsTagModalOpen(false);
+                // Mark tags as edited after saving
+                setHasEditedTags(true);
             } else {
-                throw new Error("Не удалось сохранить теги");
+                throw new Error('Не удалось сохранить теги');
             }
         } catch (err) {
-            console.error("Error updating tags:", err);
-            alert("Ошибка при сохранении тэгов");
+            console.error('Error updating tags:', err);
+            alert('Ошибка при сохранении тегов');
         }
     };
 
     const handleActivateReview = async (reviewId: string) => {
         try {
-            const status = await setReviewStatus(initDataRaw, reviewId); // Activate review
+            const status = await setReviewStatus(initDataRaw, reviewId);
             if (status) {
                 const updatedReviews = user.reviews.map((review) =>
                     review.id === reviewId ? { ...review, is_active: true } : review
@@ -170,19 +185,17 @@ export const ProfilePage: FC = () => {
                 setUser({ ...user, reviews: updatedReviews });
                 setEditedUser({ ...editedUser, reviews: updatedReviews });
             } else {
-                throw new Error("Не удалось активировать отзыв");
+                throw new Error('Не удалось активировать отзыв');
             }
         } catch (err) {
-            console.error("Error activating review:", err);
-            alert("Ошибка при активации отзыва");
+            console.error('Error activating review:', err);
+            alert('Ошибка при активации отзыва');
         }
     };
 
     const handleToggleReview = (reviewId: string) => {
         setExpandedReviews((prev) =>
-            prev.includes(reviewId)
-                ? prev.filter((id) => id !== reviewId)
-                : [...prev, reviewId]
+            prev.includes(reviewId) ? prev.filter((id) => id !== reviewId) : [...prev, reviewId]
         );
     };
 
@@ -192,13 +205,12 @@ export const ProfilePage: FC = () => {
 
     const handleEditDescription = () => {
         setIsEditingDescription(true);
-        // Optionally, focus the textarea when editing starts
         setTimeout(() => {
             if (descriptionTextareaRef.current) {
                 descriptionTextareaRef.current.focus();
-                descriptionTextareaRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+                descriptionTextareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        }, 100); // Delay to ensure textarea is rendered
+        }, 100);
     };
 
     const handleToggleStatus = async () => {
@@ -209,33 +221,55 @@ export const ProfilePage: FC = () => {
                 setUser({ ...user, isActive: newStatus });
                 setEditedUser({ ...editedUser, isActive: newStatus });
             } else {
-                throw new Error("Не удалось поменять статус");
+                throw new Error('Не удалось поменять статус');
             }
         } catch (err) {
-            console.error("Error updating status:", err);
+            console.error('Error updating status:', err);
         }
     };
 
     const handleTagToggle = (tag: string) => {
-        setSelectedTags((prev) =>
-            prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-        );
+        setSelectedTags((prev) => {
+            if (prev.includes(tag)) {
+                // Allow removing the tag
+                return prev.filter((t) => t !== tag);
+            } else {
+                // Prevent adding if already at 3 tags
+                if (prev.length >= 3) {
+                    alert('Вы можете выбрать не более 3 тегов');
+                    return prev;
+                }
+                // Mark tags as edited when adding a new tag
+                setHasEditedTags(true);
+                return [...prev, tag];
+            }
+        });
     };
 
     const handleTagDelete = async (tag: string) => {
         const newTags = selectedTags.filter((t) => t !== tag);
+
+        // Prevent deletion if it would result in less than 1 tag after first edit
+        if (hasEditedTags && newTags.length < 1) {
+            alert('После редактирования должен остаться хотя бы 1 тег');
+            return;
+        }
+
         setSelectedTags(newTags);
+        const transformedTags = newTags.map((tag) => tag.toLowerCase().replace(/\s+/g, '_'));
         try {
-            const status = await setTags(initDataRaw, newTags);
+            const status = await setTags(initDataRaw, transformedTags);
             if (status) {
                 setUser({ ...user, tags: newTags });
                 setEditedUser({ ...editedUser, tags: newTags });
+                // Mark tags as edited after a successful deletion
+                setHasEditedTags(true);
             } else {
-                throw new Error("Не удалось удалить тег");
+                throw new Error('Не удалось удалить тег');
             }
         } catch (err) {
-            console.error("Error deleting tag:", err);
-            alert("Ошибка при удалении тэга");
+            console.error('Error deleting tag:', err);
+            alert('Ошибка при удалении тега');
         }
     };
 
@@ -243,238 +277,262 @@ export const ProfilePage: FC = () => {
         tag.toLowerCase().includes(tagSearch.toLowerCase())
     );
 
+    const renderStars = (rating: number) => {
+        const fullStars = Math.floor(rating);
+        const halfStar = rating % 1 >= 0.5 ? 1 : 0;
+        const emptyStars = 5 - fullStars - halfStar;
+
+        return (
+            <span className={styles.stars}>
+        {'★'.repeat(fullStars)}
+                {halfStar ? '½' : ''}
+                {'☆'.repeat(emptyStars)}
+      </span>
+        );
+    };
+
+    const handleShareLink = (tutorUsername: string) => {
+        console.log("Переданный tutorUsername:", tutorUsername);
+
+        if (tutorUsername) {
+            if (openTelegramLink.isAvailable()) {
+                openTelegramLink(`https://t.me/${tutorUsername}`);
+            }
+        } else {
+            console.warn("tutorUsername пуст!");
+        }
+    };
+
     const tabs = [
-        { id: "orders", text: "Заказы", Icon: OrdersIcon },
-        { id: "profile", text: "Профиль", Icon: UserIcon },
-        { id: "responses", text: "Отклики", Icon: ResponsesIcon },
+        { id: 'orders', text: 'Заказы', Icon: OrdersIcon },
+        { id: 'profile', text: 'Профиль', Icon: UserIcon },
+        { id: 'responses', text: 'Отклики', Icon: ResponsesIcon },
     ];
 
     return (
         <Page back={false}>
-            { IsLoading? (
-                <Spinner className={styles.spinner} size="l"/>
-            ): (
+            {isLoading ? (
+                <Spinner className={styles.spinner} size="l" />
+            ) : (
                 <>
-                <div className={styles.profileContainer}>
-                    {isEditingName ? (
-                        <Input
-                            header="Имя"
-                            value={editedUser.name}
-                            onChange={(e) =>
-                                setEditedUser({ ...editedUser, name: e.target.value })
-                            }
-                            placeholder="Введите имя"
-                        />
-                    ) : (
-                        <Headline weight="1">
-                            {user.name}{" "}
-                            <EditIcon
-                                onClick={handleEditName}
-                                style={{ cursor: "pointer" }}
+                    <div className={styles.profileContainer}>
+                        <Headline weight="2" className={styles.centeredHeadline}>Ваш профиль</Headline>
+                        {isEditingName ? (
+                            <Input
+                                header="Имя"
+                                value={editedUser.name}
+                                onChange={(e) => setEditedUser({ ...editedUser, name: e.target.value })}
+                                placeholder="Введите имя"
+                                className={styles.input}
                             />
-                        </Headline>
-                    )}
-                    <div
-                        style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            alignItems: "flex-start",
-                            gap: "8px",
-                        }}
-                    >
-                        <p className={styles.statusText}>
-                            Статус профиля: {user.isActive ? "Активный" : "Неактивный"}
-                        </p>
-                        <label className={styles.switch}>
-                            <input
-                                type="checkbox"
-                                checked={user.isActive}
-                                onChange={handleToggleStatus}
-                            />
-                            <span className={styles.slider}></span>
-                        </label>
-                    </div>
-                    <div className={styles.responsesContainer}>
-                        <Headline weight="2" style={{ marginBottom: "8px" }}>
-                            Отклики
-                        </Headline>
-                        <p>{user.responseCount} откликов</p>
-                    </div>
-                    <div className={styles.tagsContainer}>
-                        <Headline weight="2" style={{ marginBottom: "8px" }}>
-                            Теги
-                        </Headline>
-                        {user.tags.length > 0 ? (
-                            <div className={styles.tagList}>
-                                {user.tags.map((tag) => (
-                                    <div key={tag} className={styles.tagChip}>
-                                        <span>{tag}</span>
-                                        <button
-                                            className={styles.tagDelete}
-                                            onClick={() => handleTagDelete(tag)}
-                                            aria-label={`Удалить тег ${tag}`}
-                                        >
-                                            ✕
-                                        </button>
-                                    </div>
-                                ))}
+                        ) : (
+                            <div className={styles.tutorInfo}>
+                                <p className={styles.statusText}>
+                                    {user.name}{' '}
+                                    <EditIcon onClick={handleEditName} style={{ cursor: 'pointer' }} />
+                                </p>
                             </div>
-                        ) : (
-                            <p>Нет тегов</p>
                         )}
-                        <Button onClick={() => setIsTagModalOpen(true)}>Изменить Теги</Button>
-                    </div>
-                    <div className={styles.reviewsContainer}>
-                        <Headline weight="2" style={{ marginBottom: "8px" }}>
-                            Отзывы
-                        </Headline>
-                        {user.reviews.length > 0 ? (
-                            <List>
-                                {user.reviews.map((review) => {
-                                    const isExpanded = expandedReviews.includes(review.id);
-                                    const previewComment =
-                                        review.comment.length > 50
-                                            ? review.comment.substring(0, 50) + "..."
-                                            : review.comment;
-
-                                    return (
-                                        <Cell
-                                            key={review.id}
-                                            onClick={() => handleToggleReview(review.id)}
-                                            style={{ cursor: "pointer" }}
-                                            after={
-                                                <span>{isExpanded ? '▲' : '▼'}</span>
-                                            }
-                                        >
-                                            <div>
-                                                <p>
-                                                    <strong>Рейтинг:</strong> {review.rating}/5
-                                                </p>
-                                                <p>
-                                                    <strong>Комментарий:</strong>{" "}
-                                                    {isExpanded ? review.comment : previewComment}
-                                                </p>
-                                                {isExpanded && (
-                                                    <>
-                                                        <p>
-                                                            <strong>Дата и время:</strong>{" "}
-                                                            {new Date(review.created_at).toLocaleString("ru-RU", {
-                                                                year: "numeric",
-                                                                month: "long",
-                                                                day: "numeric",
-                                                                hour: "2-digit",
-                                                                minute: "2-digit",
-                                                            })}
-                                                        </p>
-                                                        <p>
-                                                            <strong>Статус:</strong>{" "}
-                                                            {review.is_active ? "Активен" : "Неактивен"}
-                                                        </p>
-                                                        {!review.is_active && (
-                                                            <Button
-                                                                size="s"
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation(); // Prevent triggering collapse
-                                                                    handleActivateReview(review.id);
-                                                                }}
-                                                                style={{ marginTop: "8px" }}
-                                                            >
-                                                                Активировать
-                                                            </Button>
-                                                        )}
-                                                    </>
-                                                )}
-                                            </div>
-                                        </Cell>
-                                    );
-                                })}
-                            </List>
-                        ) : (
-                            <p>Нет отзывов</p>
+                        {isEditingName && (
+                            <Button size="s" onClick={handleSaveName} className={styles.saveButton}>
+                                Сохранить имя
+                            </Button>
                         )}
-                    </div>
-                    {isEditingDescription ? (
-                        <div className={styles.descriptionEditContainer}>
-                <textarea
-                    ref={descriptionTextareaRef} // Attach ref
-                    className={styles.descriptionTextarea}
-                    value={editedUser.description}
-                    onChange={(e) =>
-                        setEditedUser({ ...editedUser, description: e.target.value })
-                    }
-                    onFocus={() => {
-                        // Scroll textarea into view when focused
-                        if (descriptionTextareaRef.current) {
-                            descriptionTextareaRef.current.scrollIntoView({
-                                behavior: "smooth",
-                                block: "center",
-                            });
-                        }
-                    }}
-                    placeholder="Введите описание"
-                    rows={4}
-                />
+                        <div className={styles.statusContainer}>
+                            <p className={styles.statusText}>
+                                Статус профиля: {user.isActive ? 'Активный' : 'Неактивный'}
+                            </p>
+                            <label className={styles.switch}>
+                                <input
+                                    type="checkbox"
+                                    checked={user.isActive}
+                                    onChange={handleToggleStatus}
+                                />
+                                <span className={styles.slider}></span>
+                            </label>
                         </div>
-                    ) : (
-                        <div className={styles.profileDescription}>{user.description}</div>
-                    )}
-                    {isEditingName ? (
-                        <Button onClick={handleSaveName}>Сохранить имя</Button>
-                    ) : isEditingDescription ? (
-                        <Button onClick={handleSaveDescription}>Сохранить описание</Button>
-                    ) : (
-                        <Button onClick={handleEditDescription}>Изменить описание</Button>
-                    )}
-                </div>
-                <Modal open={isTagModalOpen} onOpenChange={setIsTagModalOpen}>
-                    <div
-                        style={{
-                            padding: "16px",
-                            borderBottom: "1px solid var(--tgui--neutral_300)",
-                        }}
-                    >
-                        <Headline weight="1">Выберите Теги</Headline>
-                    </div>
-                    <div style={{ padding: "16px" }}>
-                        <Input
-                            header="Поиск"
-                            value={tagSearch}
-                            onChange={(e) => setTagSearch(e.target.value)}
-                            placeholder="Поиск тега"
-                        />
-                        <List style={{ maxHeight: "300px", overflowY: "auto", marginTop: "16px" }}>
-                            {filteredTags.map((tag) => (
-                                <Cell
-                                    key={tag}
-                                    onClick={() => handleTagToggle(tag)}
-                                    style={{ cursor: "pointer" }}
-                                    before={
-                                        <Checkbox
-                                            checked={selectedTags.includes(tag)}
-                                            onChange={() => handleTagToggle(tag)}
-                                        />
+                        <div className={styles.responsesContainer}>
+                            <p>{user.responseCount} откликов</p>
+                            {user.responseCount === 0 && (
+                                <Button
+                                    size="s"
+                                    onClick={() => handleShareLink('lessonsmy_tutors_bot')}
+                                    className={styles.chatButton}
+                                >
+                                    Оплатить отклики
+                                </Button>
+                            )}
+                        </div>
+                        <div className={styles.tagsContainer}>
+                            <Headline weight="3">Теги</Headline>
+                            {user.tags.length > 0 ? (
+                                <div className={styles.tags}>
+                                    {user.tags.map((tag) => (
+                                        <div key={tag} className={styles.tag}>
+                                            <span>{tag}</span>
+                                            <button
+                                                className={styles.tagDelete}
+                                                onClick={() => handleTagDelete(tag)}
+                                                aria-label={`Удалить тег ${tag}`}
+                                            >
+                                                ✕
+                                            </button>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p>Нет тегов</p>
+                            )}
+                            <div className={styles.editTagsButtonContainer}>
+                                <Button
+                                    size="s" // Smaller button size
+                                    onClick={() => setIsTagModalOpen(true)}
+                                    className={styles.editTagsButton} // Custom class for left alignment
+                                >
+                                    Изменить теги
+                                </Button>
+                            </div>
+                        </div>
+                        <div className={styles.descriptionContainer}>
+                            <Headline weight="3">Описание</Headline>
+                            {isEditingDescription ? (
+                                <textarea
+                                    ref={descriptionTextareaRef}
+                                    className={styles.descriptionTextarea}
+                                    value={editedUser.description}
+                                    onChange={(e) =>
+                                        setEditedUser({ ...editedUser, description: e.target.value })
                                     }
-                                    role="button"
-                                    tabIndex={0}
-                                    onKeyDown={(e) => {
-                                        if (e.key === "Enter" || e.key === " ") {
-                                            handleTagToggle(tag);
-                                            e.preventDefault();
+                                    onFocus={() => {
+                                        if (descriptionTextareaRef.current) {
+                                            descriptionTextareaRef.current.scrollIntoView({
+                                                behavior: 'smooth',
+                                                block: 'center',
+                                            });
                                         }
                                     }}
+                                    placeholder="Введите описание"
+                                    rows={4}
+                                />
+                            ) : (
+                                <p className={styles.profileDescription}>{user.description}</p>
+                            )}
+                            {isEditingDescription ? (
+                                <Button
+                                    size="s"
+                                    onClick={handleSaveDescription}
+                                    className={styles.saveButton}
                                 >
-                                    {tag}
-                                </Cell>
-                            ))}
-                        </List>
-                        <Button onClick={handleSaveTags} style={{ marginTop: "16px" }}>
-                            Сохранить
-                        </Button>
+                                    Сохранить описание
+                                </Button>
+                            ) : (
+                                <Button
+                                    size="s"
+                                    onClick={handleEditDescription}
+                                    className={styles.editButton}
+                                >
+                                    Изменить описание
+                                </Button>
+                            )}
+                        </div>
+                        <div className={styles.reviewsContainer}>
+                            <Headline weight="3">Отзывы</Headline>
+                            {user.reviews.length > 0 ? (
+                                user.reviews.map((review) => {
+                                    const isExpanded = expandedReviews.includes(review.id);
+                                    return (
+                                        <div
+                                            key={review.id}
+                                            className={styles.review}
+                                            onClick={() => handleToggleReview(review.id)}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <p className={styles.reviewRating}>
+                                                {renderStars(review.rating)}
+                                            </p>
+                                            <p className={styles.reviewComment}>
+                                                {isExpanded
+                                                    ? review.comment
+                                                    : review.comment.length > 50
+                                                        ? review.comment.substring(0, 50) + '...'
+                                                        : review.comment}
+                                            </p>
+                                            <p className={styles.reviewDate}>
+                                                {new Date(review.created_at).toLocaleDateString('ru-RU')}
+                                            </p>
+                                            {isExpanded && (
+                                                <>
+                                                    <p className={styles.reviewStatus}>
+                                                        Статус: {review.is_active ? 'Активен' : 'Неактивен'}
+                                                    </p>
+                                                    {!review.is_active && (
+                                                        <Button
+                                                            size="s"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleActivateReview(review.id);
+                                                            }}
+                                                            className={styles.activateButton}
+                                                        >
+                                                            Активировать
+                                                        </Button>
+                                                    )}
+                                                </>
+                                            )}
+                                            <span className={styles.reviewToggle}>{isExpanded ? '▲' : '▼'}</span>
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p>Нет отзывов</p>
+                            )}
+                        </div>
                     </div>
-                </Modal>
+                    <Modal open={isTagModalOpen} onOpenChange={setIsTagModalOpen}>
+                        <div className={styles.modalHeader}>
+                            <Headline weight="1">Выберите теги</Headline>
+                        </div>
+                        <div className={styles.modalContent}>
+                            <Input
+                                header="Поиск"
+                                value={tagSearch}
+                                onChange={(e) => setTagSearch(e.target.value)}
+                                placeholder="Поиск тега"
+                                className={styles.input}
+                            />
+                            <List className={styles.tagList}>
+                                {filteredTags.map((tag) => (
+                                    <Cell
+                                        key={tag}
+                                        onClick={() => handleTagToggle(tag)}
+                                        className={styles.tagCell}
+                                        before={
+                                            <Checkbox
+                                                checked={selectedTags.includes(tag)}
+                                                onChange={() => handleTagToggle(tag)}
+                                            />
+                                        }
+                                        role="button"
+                                        tabIndex={0}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' || e.key === ' ') {
+                                                handleTagToggle(tag);
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                    >
+                                        {tag}
+                                    </Cell>
+                                ))}
+                            </List>
+                            <Button onClick={handleSaveTags} className={styles.saveButton}>
+                                Сохранить
+                            </Button>
+                        </div>
+                    </Modal>
                 </>
             )}
-            <Tabbar className={styles.tabbar}>
+            <Tabbar>
                 {tabs.map(({ id, text, Icon }) => (
                     <Tabbar.Item
                         key={id}
@@ -482,10 +540,10 @@ export const ProfilePage: FC = () => {
                         selected={id === currentTabId}
                         onClick={() => {
                             setCurrentTab(id);
-                            if (id === "orders") {
-                                navigate("/orders");
-                            } else if (id === "responses") {
-                                navigate("/responses");
+                            if (id === 'orders') {
+                                navigate('/orders');
+                            } else if (id === 'responses') {
+                                navigate('/responses');
                             }
                         }}
                     >

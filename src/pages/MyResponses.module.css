@@ -1,8 +1,8 @@
-.list {
-    width: 400px;
-    max-width: 100%;
-    margin: auto;
-    background: var(--tgui--secondary_bg_color);
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: var(--tgui--secondary_bg_color);
 }
 
 .Title {
@@ -11,33 +11,94 @@
     position: relative;
     top: 10px;
     left: 20px;
+    border-bottom: 1px solid var(--tgui--hint_color);
 }
 
-.buttonContainer {
+.spinnerContainer {
     display: flex;
-    justify-content: flex-end;
-    position: relative;
-    top: -10px;
-    left: -20px;
-    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
 }
 
+.error,
 .noOrders {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
     text-align: center;
-    margin-top: 20px;
+    padding: 16px;
+}
+
+.placeholderImage {
+    width: 100px;
+    height: 100px;
+    margin-top: 16px;
+}
+
+.responseList {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.responseBlock {
+    margin-bottom: 12px;
+    background-color: var(--tgui--section_bg_color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.responseBlock:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.responseCell {
+    cursor: pointer;
+    padding: 12px 16px;
     font-size: 16px;
-    color: var(--tgui--bg_color);
+    font-weight: 500;
 }
 
-.noOrders img {
-    width: 150px; /* Установить ширину изображения */
-    height: auto; /* Автоматически подстраивать высоту */
+.responseDetails {
+    padding: 0 16px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
-.orderList {
-    margin-top: 20px;
+.responseDetails.collapsed {
+    max-height: 0;
+    opacity: 0;
 }
 
-.orderItem {
-    margin-bottom: 10px;
+.responseDetails.expanded {
+    max-height: 200px;
+    opacity: 1;
+    padding: 12px 16px;
+}
+
+.responseDetailsInner {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--tgui--text_color);
+}
+
+.detailItem {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.orderId {
+    color: var(--tgui--link_color, #0088cc);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.orderId:hover {
+    color: var(#005f8a);
 }
