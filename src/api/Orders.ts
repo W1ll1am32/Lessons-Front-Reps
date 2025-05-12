@@ -145,7 +145,7 @@ export const getOrderById = async (id: string, userdata: string): Promise<OrderD
                 return null;
             }
         }
-        const ResponseOrder = await fetch(`${api_link}/orders/mini/id/${id}`, {
+        const ResponseOrder = await fetch(`${api_link}/orders/tutor/id/${id}`, {
             method: "GET",
             headers: {"Authorization": AuthToken },
         });
@@ -384,6 +384,14 @@ export const setTags = async (userdata: string | undefined, tags: string[]): Pro
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return false;
+            }
+        }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/tags`, {
             method: "POST",
             body: JSON.stringify({
@@ -414,6 +422,14 @@ export const getProfile = async (userdata: string | undefined): Promise<TutorPro
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
+        }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return null;
+            }
         }
         const ResponseOrders = await fetch(`${api_link}/users/tutor/profile`, {
             method: "GET",
@@ -446,6 +462,14 @@ export const setReviewStatus = async (userdata: string | undefined, id: string):
         const AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
+        }
+        if (isTokenExpired(AuthToken)) {
+            const token = await getToken(userdata);
+            if (token) {
+                localStorage.setItem('token', token);
+            } else {
+                return false;
+            }
         }
         const ResponseOrders = await fetch(`${api_link}/users/review/activate`, {
             method: "POST",
