@@ -49,7 +49,10 @@ export const ResponsesPage: FC = () => {
                 }
                 const data = await getResponses(initDataRaw);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
-                SetResponses(data);
+                const sortedData = data.sort((a: Responses, b: Responses) =>
+                    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                );
+                SetResponses(sortedData);
             } catch (err) {
                 console.log(err);
                 SetError("Не получили заказы");

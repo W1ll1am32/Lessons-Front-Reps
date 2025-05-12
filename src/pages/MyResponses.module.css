@@ -97,6 +97,7 @@
     color: var(--tgui--link_color, #0088cc);
     cursor: pointer;
     text-decoration: underline;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .orderId:hover {

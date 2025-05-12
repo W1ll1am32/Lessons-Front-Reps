@@ -88,7 +88,7 @@ export const MyOrdersPage: FC = () => {
                     SetError("Нет токена");
                     return
                 }
-                const data = await getOrders(initDataRaw, 4, page, selectedTag);
+                const data = await getOrders(initDataRaw, 3, page, selectedTag);
                 console.log("Сохраняем заказы в состояние MyOrders:", data);
                 if (data == null || data.Orders == null) {
                     SetNeworders([])

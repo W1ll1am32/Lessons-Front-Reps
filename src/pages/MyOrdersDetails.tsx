@@ -8,6 +8,7 @@ import {useNavigate} from "react-router-dom";
 import {initData, mainButton, useSignal} from "@telegram-apps/sdk-react";
 
 import styles from "./MyOrdersDetails.module.css"
+import {ValidateInitData} from "@/api/auth.tsx";
 
 
 export const OrderDetailsPage: FC = () => {
@@ -20,6 +21,29 @@ export const OrderDetailsPage: FC = () => {
     const [responseText, setResponseText] = useState('Здравствуйте! Давно занимаюсь этой темой и могу помочь');
     const initDataRaw = useSignal<string | undefined>(initData.raw);
 // Сработало 4.01 в 01:41 без передачи здесь initDataRaw - при этом на бэк он пришел правильный. почему?
+
+    useEffect(() => {
+        const authenticate = async () => {
+            if (!initDataRaw) {
+                alert('Ошибка авторизации.');
+                return;
+            }
+            try {
+                // navigate('/orders');
+                // Класть init data куда-то?
+                const request_status = await ValidateInitData(initDataRaw);
+                if (!request_status) {
+                    console.error('Authorization failed');
+                    alert('Не удалось выполнить авторизацию.');
+                }
+            } catch (error) {
+                console.error('Authorization failed:', error);
+                alert('Не удалось выполнить авторизацию.');
+            }
+        };
+
+        authenticate();
+    }, [initDataRaw, navigate]);
 
     useEffect(() => {
         const currentOrder = async () => {

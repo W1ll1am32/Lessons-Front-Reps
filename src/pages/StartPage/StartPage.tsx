@@ -33,5 +33,12 @@ export const StartPage: FC = () => {
         authenticate();
     }, [initDataRaw, navigate]);
 
-    return <p>Проверка авторизации...</p>;
+    return <p style={{
+        fontFamily: 'Arial, sans-serif', // Your desired font
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh', // Full viewport height
+        margin: 0, // Remove default margin
+        textAlign: 'center' }}>Проверка авторизации...</p>;
 };
