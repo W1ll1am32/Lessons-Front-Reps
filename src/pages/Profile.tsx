@@ -34,6 +34,15 @@ export const ProfilePage: FC = () => {
     const [expandedReviews, setExpandedReviews] = useState<string[]>([]);
     const [hasEditedTags, setHasEditedTags] = useState<boolean>(false);
 
+    const rev: Review = {
+        id: 'string',
+        tutor_id: 'string',
+        is_active: true,
+        rating: 4,
+        comment: 'string',
+        created_at: 'string',
+    }
+
     const [user, setUser] = useState({
         name: 'Test',
         username: 0,
@@ -42,7 +51,7 @@ export const ProfilePage: FC = () => {
         isActive: true,
         tags: [] as string[],
         responseCount: 0,
-        reviews: [] as Review[],
+        reviews: [rev] as Review[],
     });
     const [editedUser, setEditedUser] = useState(user);
     const [selectedTags, setSelectedTags] = useState<string[]>(user.tags);
@@ -444,42 +453,68 @@ export const ProfilePage: FC = () => {
                                         <div
                                             key={review.id}
                                             className={styles.review}
-                                            onClick={() => handleToggleReview(review.id)}
-                                            style={{ cursor: 'pointer' }}
+                                            tabIndex={0}
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    handleToggleReview(review.id);
+                                                    e.preventDefault();
+                                                }
+                                            }}
                                         >
-                                            <p className={styles.reviewRating}>
-                                                {renderStars(review.rating)}
-                                            </p>
-                                            <p className={styles.reviewComment}>
-                                                {isExpanded
-                                                    ? review.comment
-                                                    : review.comment.length > 50
-                                                        ? review.comment.substring(0, 50) + '...'
-                                                        : review.comment}
-                                            </p>
-                                            <p className={styles.reviewDate}>
-                                                {new Date(review.created_at).toLocaleDateString('ru-RU')}
-                                            </p>
-                                            {isExpanded && (
+                                            {review.is_active ? (
                                                 <>
-                                                    <p className={styles.reviewStatus}>
-                                                        Статус: {review.is_active ? 'Активен' : 'Неактивен'}
+                                                    <p className={styles.reviewRating}>{renderStars(review.rating)}</p>
+                                                    <p className={styles.reviewComment}>
+                                                        {isExpanded
+                                                            ? review.comment
+                                                            : review.comment.length > 40
+                                                                ? review.comment.substring(0, 40) + '...'
+                                                                : review.comment}
                                                     </p>
-                                                    {!review.is_active && (
-                                                        <Button
-                                                            size="s"
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                handleActivateReview(review.id);
-                                                            }}
-                                                            className={styles.activateButton}
-                                                        >
-                                                            Активировать
-                                                        </Button>
+                                                    {isExpanded && (
+                                                    <p className={styles.reviewDate}>
+                                                        {new Date(review.created_at).toLocaleDateString('ru-RU')}
+                                                    </p> )}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {isExpanded ? (
+                                                        <>
+                                                            <p className={styles.reviewStatus}>Статус: Неактивен</p>
+                                                            <Button
+                                                                size="s"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleActivateReview(review.id);
+                                                                }}
+                                                                className={styles.activateButton}
+                                                            >
+                                                                Активировать
+                                                            </Button>
+                                                        </>
+                                                    ) : (
+                                                        <p className={styles.reviewInactive}>Отзыв неактивен</p>
                                                     )}
                                                 </>
                                             )}
-                                            <span className={styles.reviewToggle}>{isExpanded ? '▲' : '▼'}</span>
+                                            <span
+                                                className={styles.reviewToggle}
+                                                onClick={(e) => {
+                                                    e.stopPropagation(); // Prevent parent div's onClick
+                                                    handleToggleReview(review.id);
+                                                }}
+                                                style={{ cursor: 'pointer' }}
+                                                role="button"
+                                                tabIndex={0}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        handleToggleReview(review.id);
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                            >
+            {isExpanded ? '▲' : '▼'}
+          </span>
                                         </div>
                                     );
                                 })

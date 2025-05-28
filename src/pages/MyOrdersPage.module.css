@@ -33,7 +33,7 @@
     text-align: center;
     margin-top: 20px;
     font-size: 16px;
-    color: var(--tgui--bg_color);
+    color: var(--tgui--text_color);
 }
 
 .noOrders img {
@@ -45,20 +45,14 @@
     margin-top: 20px;
 }
 
-.orderItem {
-    margin-bottom: 10px;
-}
-
-.pagination {
+.paginationContainer {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 16px;
-}
-
-.pagination span {
-    font-size: 14px;
-    color: var(--tgui--text_color);
+    width: 100%;
+    padding: 10px 0;
+    position: relative;
+    margin-bottom: 64px;
 }
 
 .responseBlock {
@@ -199,6 +193,7 @@
     background-color: var(--tgui--bg_color);
     color: var(--tgui--text_color);
     margin-bottom: 10px;
+    overflow: hidden;
 }
 
 .orderItem:hover {
@@ -213,7 +208,7 @@
 .bannerContent {
     position: relative;
     display: flex;
-    justify-content: flex-end; /* Tags on the right */
+    justify-content: flex-start; /* Tags on the right */
     margin-top: 8px; /* Space between description and tags */
 }
 
@@ -221,7 +216,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 8px; /* Space between tags */
-    justify-content: flex-end; /* Align tags to the right */
+    justify-content: flex-start; /* Align tags to the right */
 }
 
 .tag {

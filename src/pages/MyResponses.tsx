@@ -87,7 +87,7 @@ export const ResponsesPage: FC = () => {
                         <img
                             alt="Telegram sticker"
                             className="blt0jZBzpxuR4oDhJc8s"
-                            src="https://xelene.me/telegram.gif"
+                            src="https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-05-37_512.gif"
                         />
                     </Placeholder>
                 </div>

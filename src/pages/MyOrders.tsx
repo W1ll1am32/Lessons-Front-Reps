@@ -89,13 +89,35 @@ export const MyOrdersPage: FC = () => {
                     return
                 }
                 const data = await getOrders(initDataRaw, 3, page, selectedTag);
-                console.log("Сохраняем заказы в состояние MyOrders:", data);
+                console.log("Load Orders:", data);
+                /*
+                const mock : Order = {
+                    id: 'string',
+                    student_id: 'string',
+                    title: 'ssssssssssssssssssssssssssssssssssssssssssssssssstring',
+                    description: 'string',
+                    tags: ['sssssssssssssssssssssssssssssssssssssssssstring', 'string1', 'string2'],
+                    min_price: 0,
+                    max_price: 1000,
+                    status: 'string',
+                    response_count: 0,
+                    created_at: 'string',
+                    updated_at: 'string',
+                    is_responsed: false,
+                }
+                */
                 if (data == null || data.Orders == null) {
-                    SetNeworders([])
-                    setMaxPage(0)
+                    SetNeworders([]);
+                    setMaxPage(1);
                 } else {
-                    SetNeworders(data.Orders);
-                    setMaxPage(data.Pages)
+                    SetNeworders(data.Orders.map((order: Order) => ({
+                        ...order,
+                        title: order.title.length > 40 ? order.title.slice(0, 40) + '...' : order.title,
+                        description:
+                            order.description.length > 40
+                                ? order.description.slice(0, 40) + '...'
+                                : order.description})));
+                    setMaxPage(data.Pages);
                 }
             } catch (err) {
                 console.log(err);
@@ -148,7 +170,7 @@ export const MyOrdersPage: FC = () => {
                         <img
                             alt="Telegram sticker"
                             className="blt0jZBzpxuR4oDhJc8s"
-                            src="https://xelene.me/telegram.gif"
+                            src="https://cdn.pixabay.com/animation/2022/07/29/03/42/03-42-05-37_512.gif"
                         />
                     </Placeholder>
                 </div>

@@ -23,12 +23,15 @@
 
 .error,
 .noOrders {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex: 1;
     text-align: center;
-    padding: 16px;
+    margin-top: 20px;
+    font-size: 16px;
+    color: var(--tgui--text_color);
+}
+
+.noOrders img {
+    width: 150px; /* Установить ширину изображения */
+    height: auto; /* Автоматически подстраивать высоту */
 }
 
 .placeholderImage {

@@ -91,7 +91,7 @@ export const sendData = async (userdata: string): Promise<string | null> => {
 
 export const getOrders = async (userdata: string, limit: number, page: number, tag: string | null): Promise<OrderPagination | null> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
@@ -99,6 +99,7 @@ export const getOrders = async (userdata: string, limit: number, page: number, t
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return null;
             }
@@ -115,7 +116,7 @@ export const getOrders = async (userdata: string, limit: number, page: number, t
         });
 
         console.log("Response status:", ResponseOrders.status);
-        console.log("Response headers:", ResponseOrders.headers);
+        console.log("Response headers:", AuthToken);
 
         if (!ResponseOrders.ok) {
             const errorText = await ResponseOrders.text();
@@ -133,7 +134,7 @@ export const getOrders = async (userdata: string, limit: number, page: number, t
 
 export const getOrderById = async (id: string, userdata: string): Promise<OrderDetails | null> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
@@ -141,6 +142,7 @@ export const getOrderById = async (id: string, userdata: string): Promise<OrderD
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return null;
             }
@@ -170,7 +172,7 @@ export const getOrderById = async (id: string, userdata: string): Promise<OrderD
 
 export const responseOrder = async (id: string, userdata: string, responseText: string): Promise<string | null> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
@@ -178,6 +180,7 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return null;
             }
@@ -226,7 +229,7 @@ export const responseOrder = async (id: string, userdata: string, responseText: 
 
 export const getResponses = async (userdata: string): Promise<Responses[] | []> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return [] // navigate auth page
         }
@@ -234,6 +237,7 @@ export const getResponses = async (userdata: string): Promise<Responses[] | []> 
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return []
             }
@@ -263,7 +267,7 @@ export const getResponses = async (userdata: string): Promise<Responses[] | []> 
 
 export const setStatus = async (userdata: string | undefined, status: boolean): Promise<boolean> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
@@ -271,6 +275,7 @@ export const setStatus = async (userdata: string | undefined, status: boolean): 
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return false;
             }
@@ -302,7 +307,7 @@ export const setStatus = async (userdata: string | undefined, status: boolean): 
 
 export const setName = async (userdata: string | undefined, name: string): Promise<boolean> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
@@ -310,6 +315,7 @@ export const setName = async (userdata: string | undefined, name: string): Promi
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return false;
             }
@@ -341,7 +347,7 @@ export const setName = async (userdata: string | undefined, name: string): Promi
 
 export const setBio = async (userdata: string | undefined, bio: string): Promise<boolean> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
@@ -349,6 +355,7 @@ export const setBio = async (userdata: string | undefined, bio: string): Promise
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return false;
             }
@@ -380,7 +387,7 @@ export const setBio = async (userdata: string | undefined, bio: string): Promise
 
 export const setTags = async (userdata: string | undefined, tags: string[]): Promise<boolean> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
@@ -388,6 +395,7 @@ export const setTags = async (userdata: string | undefined, tags: string[]): Pro
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return false;
             }
@@ -419,7 +427,7 @@ export const setTags = async (userdata: string | undefined, tags: string[]): Pro
 
 export const getProfile = async (userdata: string | undefined): Promise<TutorProfile | null> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return null // navigate auth page
         }
@@ -427,6 +435,7 @@ export const getProfile = async (userdata: string | undefined): Promise<TutorPro
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return null;
             }
@@ -459,7 +468,7 @@ export const getProfile = async (userdata: string | undefined): Promise<TutorPro
 
 export const setReviewStatus = async (userdata: string | undefined, id: string): Promise<boolean> => {
     try {
-        const AuthToken = localStorage.getItem("token");
+        let AuthToken = localStorage.getItem("token");
         if (!AuthToken || !userdata) {
             return false // navigate auth page
         }
@@ -467,6 +476,7 @@ export const setReviewStatus = async (userdata: string | undefined, id: string):
             const token = await getToken(userdata);
             if (token) {
                 localStorage.setItem('token', token);
+                AuthToken = token;
             } else {
                 return false;
             }
